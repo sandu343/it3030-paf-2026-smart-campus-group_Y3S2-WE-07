@@ -1,4 +1,3 @@
 {
-    "kiroAgent.configureMCP": "Disabled",
-    "java.compile.nullAnalysis.mode": "automatic"
+    "kiroAgent.configureMCP": "Disabled"
 }
