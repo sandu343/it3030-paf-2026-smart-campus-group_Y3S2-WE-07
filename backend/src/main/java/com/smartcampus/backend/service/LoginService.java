@@ -5,6 +5,7 @@ import com.smartcampus.backend.dto.LoginRequest;
 import com.smartcampus.backend.exception.InvalidCredentialsException;
 import com.smartcampus.backend.model.User;
 import com.smartcampus.backend.repository.UserRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,27 +24,32 @@ public class LoginService {
     }
     
     public AuthenticationResponse login(LoginRequest request) {
-        // Find user by email
-        User user = userRepository.findByEmailIgnoreCase(request.getEmail().trim())
-            .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
-        
-        // Verify password
-        if (!passwordService.verifyPassword(request.getPassword(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Invalid credentials");
+        try {
+            // Find user by email
+            User user = userRepository.findByEmailIgnoreCase(request.getEmail().trim())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+
+            // Verify password
+            if (!passwordService.verifyPassword(request.getPassword(), user.getPasswordHash())) {
+                throw new InvalidCredentialsException("Invalid email or password");
+            }
+
+            // Generate token
+            String token = tokenService.generateToken(user);
+
+            // Create response
+            AuthenticationResponse.UserDto userDto = new AuthenticationResponse.UserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt()
+            );
+
+            return new AuthenticationResponse(token, userDto);
+        } catch (DataAccessException ex) {
+            // Do not leak infrastructure details on login failures.
+            throw new InvalidCredentialsException("Invalid email or password");
         }
-        
-        // Generate token
-        String token = tokenService.generateToken(user);
-        
-        // Create response
-        AuthenticationResponse.UserDto userDto = new AuthenticationResponse.UserDto(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getRole(),
-            user.getCreatedAt()
-        );
-        
-        return new AuthenticationResponse(token, userDto);
     }
 }

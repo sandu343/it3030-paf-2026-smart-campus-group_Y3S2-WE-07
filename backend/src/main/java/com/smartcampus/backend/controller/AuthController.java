@@ -3,6 +3,7 @@ package com.smartcampus.backend.controller;
 import com.smartcampus.backend.dto.AuthResponse;
 import com.smartcampus.backend.dto.AuthenticationResponse;
 import com.smartcampus.backend.dto.LoginRequest;
+import com.smartcampus.backend.dto.ResetPasswordRequest;
 import com.smartcampus.backend.dto.RegisterRequest;
 import com.smartcampus.backend.dto.StaffLoginRequest;
 import com.smartcampus.backend.service.AuthService;
@@ -12,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,5 +49,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> staffLogin(@Valid @RequestBody StaffLoginRequest request) {
         AuthResponse response = authService.staffLogin(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Password reset successful"));
     }
 }

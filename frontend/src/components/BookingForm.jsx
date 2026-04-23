@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
 import bookingService from '../services/bookingService';
 
 /**
@@ -44,6 +44,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [conflictError, setConflictError] = useState(false);
   const [slotRangeOverlapError, setSlotRangeOverlapError] = useState('');
 
@@ -425,7 +426,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
       // Check if ranges overlap: range start < booked end AND range end > booked start
       if (rangeStartTotalMin < bookedEndTotalMin && rangeEndTotalMin > bookedStartTotalMin) {
-        return `Selected slot range ${slotRange.fromTime} - ${slotRange.toTime} overlaps with an already booked time period.`;
+        return `Some times in the selected range (${slotRange.fromTime} - ${slotRange.toTime}) are already booked.`;
       }
     }
 
@@ -484,6 +485,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
     setError('');
     setSuccess('');
 
@@ -521,7 +523,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
     if (hasTimeOverlapWithBooked()) {
       setConflictError(true);
       setError(
-        `❌ Selected time ${formData.startTime} - ${formData.endTime} overlaps with an already booked period. Please choose a different time.`
+        `Selected time ${formData.startTime} - ${formData.endTime} overlaps with an already booked period. Please choose a different time.`
       );
       return;
     }
@@ -530,7 +532,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
       setLoading(true);
       const response = await bookingService.createBooking(formData);
       
-      setSuccess('🎉 Booking created successfully! You can view it in your dashboard.');
+      setSuccess('Booking created successfully! You can view it in your dashboard.');
       
       // Reset form
       setFormData({
@@ -545,6 +547,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
       setSelectedBuilding('');
       setBuildingTouched(false);
       setTouched({});
+      setHasAttemptedSubmit(false);
 
       // Call parent callback
       if (onBookingCreated) {
@@ -557,7 +560,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
       const errorMessage = err.response?.data?.message || err.message || 'Failed to create booking';
       const isConflictError = err.response?.status === 409 || errorMessage.toLowerCase().includes('conflict');
       
-      setError(`❌ ${errorMessage}`);
+      setError(errorMessage);
       console.error('Booking creation error:', err);
 
       // If conflict detected, fetch available slots automatically
@@ -582,31 +585,26 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
   };
 
   // Check if form is valid and no time overlap with booked periods
-  const isFormValid = Object.keys(errors).length === 0 && 
-                     selectedBuilding &&
-                     formData.resourceId && 
-                     formData.date && 
-                     formData.startTime && 
-                     formData.endTime && 
-                     formData.purpose.trim().length >= 3 &&
-                     formData.attendees >= 1 &&
-                     !hasTimeOverlapWithBooked() &&
-                     !slotRangeOverlapError;
+  const isFormValid = Object.keys(errors).length === 0 &&
+    selectedBuilding &&
+    formData.resourceId &&
+    formData.date &&
+    formData.startTime &&
+    formData.endTime &&
+    formData.purpose.trim().length >= 3 &&
+    formData.attendees >= 1 &&
+    !hasTimeOverlapWithBooked();
 
   // Get selected resource for info display
   const selectedResource = resources.find((r) => r.id === formData.resourceId);
+  const shouldShowFieldError = (fieldName) => hasAttemptedSubmit || touched[fieldName];
+  const shouldShowBuildingError = hasAttemptedSubmit || buildingTouched;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1000px_600px_at_10%_-10%,#dcfce7_0%,#f8fafc_42%,#f0fdf4_100%)] py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl">
+    <div className="py-2">
+      <div className="mx-auto max-w-3xl">
         {/* Form Container */}
-        <div className="rounded-3xl border border-green-100 bg-white shadow-sm">
-          {/* Header Section */}
-          <div className="border-b border-green-100 bg-gradient-to-r from-green-600 to-green-700 px-6 py-8 text-center text-white sm:px-8">
-            <h2 className="text-3xl font-bold tracking-tight">Create New Booking</h2>
-            <p className="mt-2 text-sm text-green-100">Book a resource for your event, class, or meeting</p>
-          </div>
-
+        <div className="rounded-[24px] border border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
           <div className="px-6 py-8 sm:px-8">
             {/* Error Alert */}
             {error && (
@@ -650,7 +648,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   </div>
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-orange-900">
-                      ✨ We found {availableSlots.length} available time slot{availableSlots.length > 1 ? 's' : ''} on {formData.date}!
+                      We found {availableSlots.length} available time slot{availableSlots.length > 1 ? 's' : ''} on {formData.date}.
                     </h3>
                     <p className="mt-1 text-xs text-orange-700">
                       Click any time slot below to instantly update your booking request.
@@ -667,7 +665,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="block text-base font-bold">{slot.startTime} — {slot.endTime}</span>
+                          <span className="block text-base font-bold">{slot.startTime} - {slot.endTime}</span>
                           <span className="text-xs text-orange-700">Click to select</span>
                         </div>
                         <svg className="h-5 w-5 text-orange-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -682,15 +680,15 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
             {/* Success Alert */}
             {success && (
-              <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 animate-in fade-in-0 duration-200">
+              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 animate-in fade-in-0 duration-200">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-green-800">{success}</p>
+                    <p className="text-sm font-medium text-emerald-800">{success}</p>
                   </div>
                 </div>
               </div>
@@ -698,8 +696,12 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Resource Selection */}
-              <div>
+              <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600">
+                Fields marked with <span className="text-red-600">*</span> are required.
+              </p>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {/* Resource Selection */}
+                <div>
                 <label htmlFor="building" className="block text-sm font-semibold text-gray-900">
                   Select Building <span className="text-red-500">*</span>
                 </label>
@@ -710,10 +712,10 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   value={selectedBuilding}
                   onChange={handleBuildingChange}
                   disabled={loading}
-                  className={`mt-2 block w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    buildingTouched && !selectedBuilding
+                  className={`mt-2 block w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
+                    shouldShowBuildingError && !selectedBuilding
                       ? 'border-red-300 bg-red-50 text-gray-900'
-                      : 'border-green-200 bg-white text-gray-900 hover:border-green-300'
+                      : 'border-slate-200 bg-white text-gray-900 hover:border-blue-200'
                   } ${loading ? 'cursor-not-allowed opacity-60' : ''}`}
                 >
                   <option value="">-- Select a Building --</option>
@@ -723,10 +725,10 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                     </option>
                   ))}
                 </select>
-                {buildingTouched && !selectedBuilding && (
+                {shouldShowBuildingError && !selectedBuilding && (
                   <p className="mt-2 text-sm font-medium text-red-600">Please select a building</p>
                 )}
-              </div>
+                </div>
 
               <div>
                 <label htmlFor="resourceId" className="block text-sm font-semibold text-gray-900">
@@ -739,10 +741,10 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   value={formData.resourceId}
                   onChange={handleChange}
                   disabled={loading || !selectedBuilding}
-                  className={`mt-2 block w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    touched.resourceId && errors.resourceId
+                  className={`mt-2 block w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
+                    shouldShowFieldError('resourceId') && errors.resourceId
                       ? 'border-red-300 bg-red-50 text-gray-900'
-                      : 'border-green-200 bg-white text-gray-900 hover:border-green-300'
+                      : 'border-slate-200 bg-white text-gray-900 hover:border-blue-200'
                   } ${loading || !selectedBuilding ? 'cursor-not-allowed opacity-60' : ''}`}
                 >
                   <option value="">{selectedBuilding ? '-- Select a Meeting Room --' : '-- Select Building First --'}</option>
@@ -752,7 +754,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                     </option>
                   ))}
                 </select>
-                {touched.resourceId && errors.resourceId && (
+                {shouldShowFieldError('resourceId') && errors.resourceId && (
                   <p className="mt-2 flex items-center text-sm font-medium text-red-600">
                     <svg className="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18.101 12.93l-.902-14.85a1.5 1.5 0 00-1.528-1.393H4.329a1.5 1.5 0 00-1.529 1.393L1.899 12.93A3 3 0 104.743 19h10.514a3 3 0 00-2.857-6.07z" clipRule="evenodd" />
@@ -763,30 +765,30 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
                 {/* Resource Info Card */}
                 {selectedResource && (
-                  <div className="mt-4 rounded-lg border-2 border-green-200 bg-green-50 p-4">
+                  <div className="mt-4 rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4">
                     <div className="grid gap-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-green-600">Resource Details</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-[#3B82F6]">Resource Details</p>
                           <p className="mt-1 text-lg font-bold text-gray-900">{selectedResource.hallName}</p>
                         </div>
-                        <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-[#1E3A8A]">
                           {selectedResource.resourceType}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 border-t border-green-200 pt-3">
+                      <div className="grid grid-cols-2 gap-3 border-t border-blue-200 pt-3">
                         <div>
-                          <p className="text-xs text-green-600">Capacity</p>
+                          <p className="text-xs text-[#3B82F6]">Capacity</p>
                           <p className="text-sm font-bold text-gray-900">{selectedResource.capacity} people</p>
                         </div>
                         <div>
-                          <p className="text-xs text-green-600">Location</p>
+                          <p className="text-xs text-[#3B82F6]">Location</p>
                           <p className="text-sm font-bold text-gray-900">
                             {selectedResource.buildingName}, Block {selectedResource.blockName}
                           </p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-xs text-green-600">Floor</p>
+                          <p className="text-xs text-[#3B82F6]">Floor</p>
                           <p className="text-sm font-bold text-gray-900">Floor {selectedResource.floorNumber}</p>
                         </div>
                       </div>
@@ -807,13 +809,13 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   value={formData.date}
                   onChange={handleChange}
                   min={new Date().toISOString().split('T')[0]}
-                  className={`mt-2 block w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    touched.date && errors.date
+                  className={`mt-2 block w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
+                    shouldShowFieldError('date') && errors.date
                       ? 'border-red-300 bg-red-50 text-gray-900'
-                      : 'border-green-200 bg-white text-gray-900'
+                      : 'border-slate-200 bg-white text-gray-900'
                   }`}
                 />
-                {touched.date && errors.date && (
+                {shouldShowFieldError('date') && errors.date && (
                   <p className="mt-2 flex items-center text-sm font-medium text-red-600">
                     <svg className="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18.101 12.93l-.902-14.85a1.5 1.5 0 00-1.528-1.393H4.329a1.5 1.5 0 00-1.529 1.393L1.899 12.93A3 3 0 104.743 19h10.514a3 3 0 00-2.857-6.07z" clipRule="evenodd" />
@@ -824,22 +826,22 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
               </div>
 
               {/* Time Selection */}
-              <div className="grid grid-cols-1 gap-6">
-                <div className="rounded-lg border border-green-100 bg-green-50/60 p-4">
+              <div className="grid grid-cols-1 gap-6 lg:col-span-2">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
                   <p className="text-sm font-semibold text-gray-900">Customize Slot Range</p>
                   <p className="mt-1 text-xs text-gray-600">
                     Choose a time window. Only available slots inside this range will be shown.
                   </p>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="fromTime" className="block text-xs font-semibold uppercase text-green-700">
+                      <label htmlFor="fromTime" className="block text-xs font-semibold uppercase text-[#1E3A8A]">
                         From
                       </label>
                       <select
                         id="fromTime"
                         value={slotRange.fromTime}
                         onChange={(e) => setSlotRange((prev) => ({ ...prev, fromTime: e.target.value }))}
-                        className="mt-1 block w-full rounded-lg border-2 border-green-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 focus:border-green-500 focus:outline-none"
+                        className="mt-1 block w-full rounded-2xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 focus:border-[#3B82F6] focus:outline-none"
                       >
                         {Array.from({ length: 21 }, (_, index) => {
                           const totalMinutes = 8 * 60 + index * 30;
@@ -855,14 +857,14 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="toTime" className="block text-xs font-semibold uppercase text-green-700">
+                      <label htmlFor="toTime" className="block text-xs font-semibold uppercase text-[#1E3A8A]">
                         To
                       </label>
                       <select
                         id="toTime"
                         value={slotRange.toTime}
                         onChange={(e) => setSlotRange((prev) => ({ ...prev, toTime: e.target.value }))}
-                        className="mt-1 block w-full rounded-lg border-2 border-green-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 focus:border-green-500 focus:outline-none"
+                        className="mt-1 block w-full rounded-2xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 focus:border-[#3B82F6] focus:outline-none"
                       >
                         {Array.from({ length: 21 }, (_, index) => {
                           const totalMinutes = 8 * 60 + index * 30;
@@ -885,14 +887,14 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   )}
 
                   {slotRangeOverlapError && (
-                    <div className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3">
-                      <p className="text-sm font-medium text-red-700">
-                        ⚠️ {slotRangeOverlapError}
+                    <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+                      <p className="text-sm font-medium text-amber-800">
+                        Warning: {slotRangeOverlapError}
                       </p>
                     </div>
                   )}
 
-                  <p className="mt-2 text-xs text-green-700">
+                  <p className="mt-2 text-xs text-[#1E3A8A]">
                     The first available slot in this range will be auto-selected.
                   </p>
                   {formData.resourceId && formData.date && availableSlots.length === 0 && (
@@ -923,7 +925,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
 
               {/* Smart Slot Suggestions */}
               {availableSlots.length > 0 && (
-                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4 lg:col-span-2">
                   <button
                     type="button"
                     onClick={() => setShowSlotSuggestions(!showSlotSuggestions)}
@@ -932,7 +934,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                     <svg className={`mr-2 h-5 w-5 transition-transform ${showSlotSuggestions ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
-                    💡 {showSlotSuggestions ? 'Hide' : 'Show'} Suggested Time Slots
+                    {showSlotSuggestions ? 'Hide' : 'Show'} Suggested Time Slots
                   </button>
                   {showSlotSuggestions && (
                     <div className="mt-4 grid gap-2">
@@ -944,7 +946,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                           className="rounded-lg border-2 border-amber-300 bg-white px-4 py-3 text-left text-sm font-medium text-amber-900 transition-all hover:border-amber-500 hover:bg-amber-100 active:bg-amber-200"
                         >
                           <span className="font-bold">{slot.startTime}</span>
-                          <span className="mx-2 text-gray-500">→</span>
+                          <span className="mx-2 text-gray-500">to</span>
                           <span className="font-bold">{slot.endTime}</span>
                         </button>
                       ))}
@@ -954,7 +956,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
               )}
 
               {/* Purpose */}
-              <div>
+              <div className="lg:col-span-2">
                 <label htmlFor="purpose" className="block text-sm font-semibold text-gray-900">
                   Purpose of Booking <span className="text-red-500">*</span>
                 </label>
@@ -967,15 +969,15 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   onChange={handleChange}
                   placeholder="e.g., Lecture Class, Team Meeting, Research Lab Session"
                   maxLength="100"
-                  className={`mt-2 block w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    touched.purpose && errors.purpose
+                  className={`mt-2 block w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
+                    shouldShowFieldError('purpose') && errors.purpose
                       ? 'border-red-300 bg-red-50 text-gray-900'
-                      : 'border-green-200 bg-white text-gray-900'
+                      : 'border-slate-200 bg-white text-gray-900'
                   }`}
                 />
                 <div className="mt-1 flex items-center justify-between">
                   <p className="text-xs text-gray-500">{formData.purpose.length}/100 characters</p>
-                  {touched.purpose && errors.purpose && (
+                  {shouldShowFieldError('purpose') && errors.purpose && (
                     <p className="flex items-center text-xs font-medium text-red-600">
                       <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18.101 12.93l-.902-14.85a1.5 1.5 0 00-1.528-1.393H4.329a1.5 1.5 0 00-1.529 1.393L1.899 12.93A3 3 0 104.743 19h10.514a3 3 0 00-2.857-6.07z" clipRule="evenodd" />
@@ -999,13 +1001,13 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   onChange={handleChange}
                   min="1"
                   max="1000"
-                  className={`mt-2 block w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    touched.attendees && (errors.attendees || errors.capacity)
+                  className={`mt-2 block w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
+                    shouldShowFieldError('attendees') && (errors.attendees || errors.capacity)
                       ? 'border-red-300 bg-red-50 text-gray-900'
-                      : 'border-green-200 bg-white text-gray-900'
+                      : 'border-slate-200 bg-white text-gray-900'
                   }`}
                 />
-                {touched.attendees && (errors.attendees || errors.capacity) && (
+                {shouldShowFieldError('attendees') && (errors.attendees || errors.capacity) && (
                   <p className="mt-2 flex items-center text-sm font-medium text-red-600">
                     <svg className="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18.101 12.93l-.902-14.85a1.5 1.5 0 00-1.528-1.393H4.329a1.5 1.5 0 00-1.529 1.393L1.899 12.93A3 3 0 104.743 19h10.514a3 3 0 00-2.857-6.07z" clipRule="evenodd" />
@@ -1016,20 +1018,20 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                 {selectedResource && formData.attendees > 0 && (
                   <div className={`mt-3 rounded-lg px-4 py-2 text-sm ${
                     formData.attendees <= selectedResource.capacity
-                      ? 'border border-green-200 bg-green-50 text-green-800'
+                      ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
                       : 'border border-orange-200 bg-orange-50 text-orange-800'
                   }`}>
                     <p className="font-medium">
                       {formData.attendees <= selectedResource.capacity
-                        ? `✓ Fits within capacity (${selectedResource.capacity} people)`
-                        : `⚠️ Exceeds capacity (${selectedResource.capacity} people)`}
+                        ? `Fits within capacity (${selectedResource.capacity} people)`
+                        : `Exceeds capacity (${selectedResource.capacity} people)`}
                     </p>
                   </div>
                 )}
               </div>
 
               {/* Notes */}
-              <div>
+              <div className="lg:col-span-2">
                 <label htmlFor="notes" className="block text-sm font-semibold text-gray-900">
                   Additional Notes <span className="text-gray-500 font-normal">(Optional)</span>
                 </label>
@@ -1042,9 +1044,10 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   placeholder="E.g., Need projector setup, require accessibility features, dietary requirements..."
                   rows="3"
                   maxLength="500"
-                  className="mt-2 block w-full rounded-lg border-2 border-green-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  className="mt-2 block w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2"
                 />
                 <p className="mt-1 text-xs text-gray-500">{formData.notes.length}/500 characters</p>
+              </div>
               </div>
 
               {/* Form Actions */}
@@ -1055,7 +1058,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                   className={`flex items-center justify-center rounded-lg px-6 py-3 font-semibold transition-all duration-200 ${
                     loading || !isFormValid
                       ? 'cursor-not-allowed bg-gray-400 text-white opacity-75'
-                      : 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-md hover:shadow-lg'
+                      : 'bg-[#10B981] text-white hover:bg-[#059669] active:bg-[#047857] shadow-md hover:shadow-lg'
                   }`}
                   title={!isFormValid ? 'Please fix validation errors before submitting' : ''}
                 >
@@ -1088,7 +1091,7 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
               </div>
 
               {/* Validation Summary */}
-              {Object.keys(errors).length > 0 && (
+              {hasAttemptedSubmit && Object.keys(errors).length > 0 && (
                 <div className="mt-4 rounded-lg border-2 border-red-200 bg-red-50 p-4">
                   <h3 className="flex items-center text-sm font-semibold text-red-900">
                     <svg className="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -1096,12 +1099,9 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
                     </svg>
                     Please fix the errors below:
                   </h3>
-                  <ul className="mt-2 space-y-1">
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
                     {Object.entries(errors).map(([field, message]) => (
-                      <li key={field} className="flex items-start text-xs text-red-800">
-                        <span className="mr-2 mt-1">•</span>
-                        <span>{message}</span>
-                      </li>
+                      <li key={field} className="text-xs text-red-800">{message}</li>
                     ))}
                   </ul>
                 </div>
@@ -1109,13 +1109,13 @@ const BookingForm = ({ onBookingCreated, onCancel, preselectedResourceId = '' })
             </form>
 
             {/* Info Section */}
-            <div className="mt-8 rounded-lg border border-green-100 bg-green-50 p-4">
-              <h3 className="text-sm font-semibold text-green-900">📝 Booking Information</h3>
-              <ul className="mt-2 space-y-2 text-xs text-green-800">
-                <li>• Bookings are subject to admin approval</li>
-                <li>• Working hours: 08:00 AM to 06:00 PM</li>
-                <li>• Minimum booking duration: 30 minutes</li>
-                <li>• You can manage your bookings from your dashboard</li>
+            <div className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/60 p-4">
+              <h3 className="text-sm font-semibold text-[#1E3A8A]">Booking Information</h3>
+              <ul className="mt-2 list-disc space-y-2 pl-5 text-xs text-slate-700">
+                <li>Bookings are subject to admin approval</li>
+                <li>Working hours: 08:00 AM to 06:00 PM</li>
+                <li>Minimum booking duration: 30 minutes</li>
+                <li>You can manage your bookings from your dashboard</li>
               </ul>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { AlertCircle, Search } from 'lucide-react'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/AuthContextObject'
 import bookingService from '../../../services/bookingService'
 import { validateTicketForm, validateField } from '../utils/validationUtils'
 import ticketApiService from '../services/ticketApiService'
@@ -60,7 +60,7 @@ export const CreateTicketForm = ({ onSuccess }) => {
         setTouched(prev => ({ ...prev, contactNumber: true }))
       }
     }
-  }, [user])
+  }, [user, formData.preferredContact, formData.contactNumber])
 
   // Load resources on component mount
   useEffect(() => {

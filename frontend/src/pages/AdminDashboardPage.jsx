@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Bell,
   BookOpenCheck,
   CalendarCheck2,
   Building2,
@@ -15,7 +14,7 @@ import {
   Users,
   Wrench,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
 import { getAllTechnicians } from '../services/adminService';
 import bookingService from '../services/bookingService';
 import ticketApiService from './Incident_tickting/services/ticketApiService';
@@ -25,7 +24,6 @@ import NotificationDropdown from '../components/NotificationDropdown'
 const sidebarItems = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/admin/dashboard', active: true },
   { label: 'Resources', icon: Building2, to: '/admin/resources' },
-  { label: 'Campus Alerts', icon: Bell, to: '/admin/alerts' },
   { label: 'Manage Technicians', icon: Wrench, to: '/admin/technicians' },
   { label: 'Manage Bookings', icon: CalendarCheck2, to: '/admin/bookings' },
   { label: 'Manage Tickets', icon: Ticket, to: '/admin/tickets' },
@@ -94,13 +92,13 @@ function StatusBadge({ status }) {
 
 function Sidebar({ onLogout }) {
   return (
-    <aside className="hidden xl:flex xl:w-72 xl:flex-col xl:border-r xl:border-green-100 xl:bg-white">
-      <div className="flex items-center gap-3 border-b border-green-100 px-6 py-6">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white">
+    <aside className="hidden xl:flex xl:w-72 xl:flex-col xl:border-r xl:border-blue-100 xl:bg-white">
+      <div className="flex items-center gap-3 border-b border-blue-100 px-6 py-6">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1E3A8A] text-white">
           <ShieldUser className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">Smart Campus</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1E3A8A]">Smart Campus</p>
           <h1 className="text-lg font-extrabold text-slate-900">Operations Hub</h1>
         </div>
       </div>
@@ -114,8 +112,8 @@ function Sidebar({ onLogout }) {
               to={item.to}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                 item.active
-                  ? 'bg-green-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-green-50 hover:text-green-800'
+                  ? 'bg-[#1E3A8A] text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-blue-50 hover:text-[#1E3A8A]'
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -125,11 +123,11 @@ function Sidebar({ onLogout }) {
         })}
       </nav>
 
-      <div className="border-t border-green-100 px-6 py-6">
+      <div className="border-t border-blue-100 px-6 py-6">
         <button
           type="button"
           onClick={onLogout}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-green-200 bg-white px-4 py-2.5 text-sm font-semibold text-green-800 transition hover:bg-green-50"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#1E3A8A] transition hover:bg-blue-50"
         >
           <LogOut className="h-4 w-4" />
           Logout
@@ -141,14 +139,14 @@ function Sidebar({ onLogout }) {
 
 function TopNavbar({ onLogout, user, isNotificationOpen, setIsNotificationOpen }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-green-100 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-blue-100 bg-[rgba(248,250,252,0.92)] backdrop-blur">
       <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-green-100 text-green-800 xl:hidden">
+          <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 text-[#1E3A8A] xl:hidden">
             <Menu className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">Smart Campus Admin</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1E3A8A]">Smart Campus Admin</p>
             <h2 className="text-lg font-bold text-slate-900 sm:text-xl">Dashboard</h2>
           </div>
         </div>
@@ -162,8 +160,8 @@ function TopNavbar({ onLogout, user, isNotificationOpen, setIsNotificationOpen }
             />
           </div>
 
-          <div className="hidden items-center gap-2 rounded-xl border border-green-100 bg-white px-3 py-2 sm:flex">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-xs font-bold text-white">
+          <div className="hidden items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 py-2 sm:flex">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#3B82F6] text-xs font-bold text-white">
               {user?.name?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <p className="text-sm font-semibold text-slate-700">{user?.name || 'Admin'}</p>
@@ -172,7 +170,7 @@ function TopNavbar({ onLogout, user, isNotificationOpen, setIsNotificationOpen }
           <button
             type="button"
             onClick={onLogout}
-            className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#10B981] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#059669]"
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Logout</span>
@@ -185,13 +183,13 @@ function TopNavbar({ onLogout, user, isNotificationOpen, setIsNotificationOpen }
 
 function StatCard({ icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-green-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-slate-600">{label}</p>
           <p className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">{value}</p>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-green-700">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-[#1E3A8A]">
           {React.createElement(icon, { className: 'h-5 w-5' })}
         </div>
       </div>
@@ -201,9 +199,9 @@ function StatCard({ icon, label, value }) {
 
 function LoadingCard() {
   return (
-    <div className="rounded-2xl border border-green-100 bg-white p-5 shadow-sm">
-      <div className="h-4 w-24 animate-pulse rounded bg-green-100" />
-      <div className="mt-3 h-8 w-16 animate-pulse rounded bg-green-100" />
+    <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+      <div className="h-4 w-24 animate-pulse rounded bg-blue-100" />
+      <div className="mt-3 h-8 w-16 animate-pulse rounded bg-blue-100" />
     </div>
   );
 }
@@ -212,7 +210,7 @@ function ActionButton({ icon, label, to }) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-gradient-to-br from-white to-green-50 px-4 py-3 text-sm font-semibold text-green-800 shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md"
+      className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-gradient-to-br from-white to-blue-50 px-4 py-3 text-sm font-semibold text-[#1E3A8A] shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
     >
       {React.createElement(icon, { className: 'h-4 w-4' })}
       {label}
@@ -222,9 +220,9 @@ function ActionButton({ icon, label, to }) {
 
 function BookingsTable({ bookings, loading }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-green-100 bg-white">
-      <table className="min-w-full divide-y divide-green-100 text-left text-sm">
-        <thead className="bg-green-50">
+    <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white">
+      <table className="min-w-full divide-y divide-blue-100 text-left text-sm">
+        <thead className="bg-blue-50/60">
           <tr>
             <th className="px-4 py-3 font-semibold text-slate-900">Resource</th>
             <th className="px-4 py-3 font-semibold text-slate-900">Date</th>
@@ -232,7 +230,7 @@ function BookingsTable({ bookings, loading }) {
             <th className="px-4 py-3 font-semibold text-slate-900">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-green-50 bg-white">
+        <tbody className="divide-y divide-blue-50 bg-white">
           {loading ? (
             <tr>
               <td className="px-4 py-6 text-center text-slate-500" colSpan="5">
@@ -267,12 +265,12 @@ function TicketsList({ tickets, loading }) {
   return (
     <div className="space-y-3">
       {loading ? (
-        <div className="rounded-2xl border border-green-100 bg-white p-4 text-sm text-slate-500 shadow-sm">
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 text-sm text-slate-500 shadow-sm">
           Loading tickets...
         </div>
       ) : tickets.length > 0 ? (
         tickets.map((ticket) => (
-          <div key={ticket.id} className="rounded-2xl border border-green-100 bg-white p-4 shadow-sm">
+          <div key={ticket.id} className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-slate-900">{ticket.title || ticket.issue || 'Untitled ticket'}</p>
@@ -286,7 +284,7 @@ function TicketsList({ tickets, loading }) {
           </div>
         ))
       ) : (
-        <div className="rounded-2xl border border-green-100 bg-white p-4 text-sm text-slate-500 shadow-sm">
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 text-sm text-slate-500 shadow-sm">
           No tickets found
         </div>
       )}
@@ -298,24 +296,24 @@ function OverviewPanel() {
   const chartBars = [56, 72, 43, 88, 64, 79, 52];
 
   return (
-    <div className="rounded-2xl border border-green-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
       <h3 className="text-base font-bold text-slate-900">System Overview</h3>
       <p className="mt-1 text-sm text-slate-600">Bookings trend over the past 7 days</p>
 
       <div className="mt-5 flex h-36 items-end gap-2">
         {chartBars.map((height, index) => (
-          <div key={index} className="flex-1 rounded-t-md bg-green-200">
-            <div className="w-full rounded-t-md bg-green-600" style={{ height: `${height}%` }} />
+          <div key={index} className="flex-1 rounded-t-md bg-blue-200">
+            <div className="w-full rounded-t-md bg-[#1E3A8A]" style={{ height: `${height}%` }} />
           </div>
         ))}
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-xl bg-green-50 p-3">
+        <div className="rounded-xl bg-blue-50 p-3">
           <p className="text-slate-600">Resolution Rate</p>
           <p className="mt-1 text-lg font-extrabold text-slate-900">92%</p>
         </div>
-        <div className="rounded-xl bg-green-50 p-3">
+        <div className="rounded-xl bg-blue-50 p-3">
           <p className="text-slate-600">System Health</p>
           <p className="mt-1 text-lg font-extrabold text-slate-900">Optimal</p>
         </div>
@@ -416,7 +414,7 @@ const AdminDashboardPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-green-50 text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(1200px_680px_at_10%_-10%,rgba(59,130,246,0.10)_0%,#F8FAFC_42%,#F5F7FA_100%)] text-slate-900">
       <div className="flex min-h-screen">
         <Sidebar onLogout={handleLogout} />
 
@@ -429,7 +427,7 @@ const AdminDashboardPage = () => {
           />
 
           <main className="flex-1 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-            <section className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
+            <section className="rounded-[28px] border border-blue-100 bg-white p-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
               <h1 className="text-2xl font-extrabold text-slate-900">Welcome back, Admin</h1>
               <p className="mt-2 text-sm text-slate-600">
                 Here is your operational summary for Smart Campus facilities, bookings, and support services.
@@ -448,7 +446,7 @@ const AdminDashboardPage = () => {
               </section>
             )}
 
-            <section className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
+            <section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-bold text-slate-900">Quick Actions</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 <ActionButton icon={UserRoundCog} label="Manage Technicians" to="/admin/technicians" />
@@ -462,7 +460,7 @@ const AdminDashboardPage = () => {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h2 className="text-lg font-bold text-slate-900">Recent Bookings</h2>
-                    <Link to="/admin/bookings" className="text-sm font-semibold text-green-700 hover:text-green-800">
+                    <Link to="/admin/bookings" className="text-sm font-semibold text-[#1E3A8A] hover:text-[#1E40AF]">
                       View all
                     </Link>
                   </div>
@@ -472,7 +470,7 @@ const AdminDashboardPage = () => {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h2 className="text-lg font-bold text-slate-900">Recent Tickets</h2>
-                    <Link to="/admin/tickets" className="text-sm font-semibold text-green-700 hover:text-green-800">
+                    <Link to="/admin/tickets" className="text-sm font-semibold text-[#1E3A8A] hover:text-[#1E40AF]">
                       Open queue
                     </Link>
                   </div>

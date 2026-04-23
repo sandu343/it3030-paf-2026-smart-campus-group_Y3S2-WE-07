@@ -2,7 +2,6 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { Link, useNavigate } from 'react-router-dom';
 import { Circle, CircleMarker, MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import {
-  Bell,
   Building2,
   CalendarCheck2,
   Eye,
@@ -20,7 +19,9 @@ import {
   X,
   Wrench,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
+import NotificationBell from '../components/NotificationBell';
+import NotificationDropdown from '../components/NotificationDropdown';
 import 'leaflet/dist/leaflet.css';
 import {
   getStudyAreaActiveMembers,
@@ -40,7 +41,6 @@ import {
 const sidebarItems = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/admin/dashboard' },
   { label: 'Resources', icon: Building2, to: '/admin/resources', active: true },
-  { label: 'Campus Alerts', icon: Bell, to: '/admin/alerts' },
   { label: 'Manage Technicians', icon: Wrench, to: '/admin/technicians' },
   { label: 'Manage Bookings', icon: CalendarCheck2, to: '/admin/bookings' },
   { label: 'Manage Tickets', icon: Ticket, to: '/admin/tickets' },
@@ -113,7 +113,7 @@ function Toast({ toast, onClose }) {
   return (
     <div className="fixed right-4 top-4 z-[70] max-w-sm rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <div className="flex items-start gap-3">
-        <div className={`mt-0.5 h-2.5 w-2.5 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`} />
+        <div className={`mt-0.5 h-2.5 w-2.5 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-emerald-500'}`} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-900">{toast.title}</p>
           <p className="mt-1 text-sm text-slate-600">{toast.message}</p>
@@ -128,13 +128,13 @@ function Toast({ toast, onClose }) {
 
 function Sidebar({ onLogout }) {
   return (
-    <aside className="hidden xl:flex xl:w-72 xl:flex-col xl:border-r xl:border-green-100 xl:bg-white">
-      <div className="flex items-center gap-3 border-b border-green-100 px-6 py-6">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-600 text-white">
+    <aside className="hidden xl:flex xl:w-72 xl:flex-col xl:border-r xl:border-blue-100 xl:bg-white">
+      <div className="flex items-center gap-3 border-b border-blue-100 px-6 py-6">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-700 text-white">
           <ShieldUser className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">Smart Campus</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-800">Smart Campus</p>
           <h1 className="text-lg font-extrabold text-slate-900">Operations Hub</h1>
         </div>
       </div>
@@ -147,7 +147,7 @@ function Sidebar({ onLogout }) {
               key={item.label}
               to={item.to}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                item.active ? 'bg-green-600 text-white shadow-sm' : 'text-slate-600 hover:bg-green-50 hover:text-green-800'
+                item.active ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-800'
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -157,11 +157,11 @@ function Sidebar({ onLogout }) {
         })}
       </nav>
 
-      <div className="border-t border-green-100 px-6 py-6">
+      <div className="border-t border-blue-100 px-6 py-6">
         <button
           type="button"
           onClick={onLogout}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-green-200 bg-white px-4 py-2.5 text-sm font-semibold text-green-800 transition hover:bg-green-50"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
         >
           <LogOut className="h-4 w-4" />
           Logout
@@ -171,28 +171,31 @@ function Sidebar({ onLogout }) {
   );
 }
 
-function TopNavbar({ onLogout, user }) {
+function TopNavbar({ onLogout, user, isNotificationOpen, setIsNotificationOpen }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-green-100 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-blue-100 bg-white/90 backdrop-blur">
       <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-green-100 text-green-800 xl:hidden">
+          <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 text-blue-800 xl:hidden">
             <Menu className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-800">Smart Campus Admin</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-800">Smart Campus Admin</p>
             <h2 className="text-lg font-bold text-slate-900 sm:text-xl">Resources Catalogue</h2>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-green-100 text-green-800">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-          </button>
+          <div className="relative">
+            <NotificationBell onBellClick={() => setIsNotificationOpen((value) => !value)} />
+            <NotificationDropdown
+              isOpen={isNotificationOpen}
+              onClose={() => setIsNotificationOpen(false)}
+            />
+          </div>
 
-          <div className="hidden items-center gap-2 rounded-xl border border-green-100 bg-white px-3 py-2 sm:flex">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-xs font-bold text-white">
+          <div className="hidden items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 py-2 sm:flex">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-700 text-xs font-bold text-white">
               {user?.name?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <p className="text-sm font-semibold text-slate-700">{user?.name || 'Admin'}</p>
@@ -201,7 +204,7 @@ function TopNavbar({ onLogout, user }) {
           <button
             type="button"
             onClick={onLogout}
-            className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600"
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Logout</span>
@@ -214,8 +217,8 @@ function TopNavbar({ onLogout, user }) {
 
 function ModalShell({ title, subtitle, onClose, children, footer }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-slate-900/40">
-      <div className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 py-6">
+      <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
             <h3 className="text-lg font-bold text-slate-900">{title}</h3>
@@ -225,7 +228,7 @@ function ModalShell({ title, subtitle, onClose, children, footer }) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="px-6 py-6">{children}</div>
+        <div className="max-h-[calc(92vh-150px)] overflow-y-auto px-6 py-6">{children}</div>
         {footer && <div className="border-t border-slate-200 px-6 py-4">{footer}</div>}
       </div>
     </div>
@@ -287,8 +290,8 @@ function StudyAreaLocationPicker({ latitude, longitude, radius, onPick }) {
           />
           {hasPoint && (
             <>
-              <CircleMarker center={center} radius={7} pathOptions={{ color: '#16a34a', fillColor: '#22c55e', fillOpacity: 0.9 }} />
-              <Circle center={center} radius={Number(radius) || 50} pathOptions={{ color: '#16a34a', fillColor: '#86efac', fillOpacity: 0.22 }} />
+              <CircleMarker center={center} radius={7} pathOptions={{ color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.9 }} />
+              <Circle center={center} radius={Number(radius) || 50} pathOptions={{ color: '#2563eb', fillColor: '#93c5fd', fillOpacity: 0.22 }} />
             </>
           )}
         </MapContainer>
@@ -300,6 +303,7 @@ function StudyAreaLocationPicker({ latitude, longitude, radius, onPick }) {
 const AdminResourcesPage = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('buildings');
   const [buildings, setBuildings] = useState([]);
   const [resources, setResources] = useState([]);
@@ -348,10 +352,7 @@ const AdminResourcesPage = () => {
     return { buildingCount, resourceCount, availableCount, maintenanceCount };
   }, [buildings.length, resources]);
 
-  const mappedStudyAreas = useMemo(
-    () => studyAreaResources.filter((item) => Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))),
-    [studyAreaResources],
-  );
+  const listedStudyAreas = useMemo(() => studyAreaResources, [studyAreaResources]);
 
   const visibleResources = useMemo(() => {
     const search = normalizeSearchValue(resourceFilters.search);
@@ -891,73 +892,72 @@ const AdminResourcesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50 text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#F8FAFC_45%,_#EEF2FF_100%)] text-slate-900">
       <Toast toast={toast} onClose={() => setToast(null)} />
       <div className="flex min-h-screen">
         <Sidebar onLogout={() => { logout(); navigate('/staff/login', { replace: true }); }} />
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <TopNavbar onLogout={() => { logout(); navigate('/staff/login', { replace: true }); }} user={user} />
+          <TopNavbar
+            onLogout={() => { logout(); navigate('/staff/login', { replace: true }); }}
+            user={user}
+            isNotificationOpen={isNotificationOpen}
+            setIsNotificationOpen={setIsNotificationOpen}
+          />
 
           <main className="flex-1 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-            <section className="overflow-hidden rounded-[2rem] border border-green-100 bg-gradient-to-br from-white to-green-50 p-6 shadow-sm sm:p-8">
+            <section className="overflow-hidden rounded-[2rem] border border-blue-100 bg-gradient-to-br from-white to-blue-50 p-6 shadow-sm sm:p-8">
               <div className="grid gap-8 lg:grid-cols-[1.35fr_0.85fr] lg:items-center">
                 <div>
                   <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Resources Catalogue</h1>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Manage campus buildings first, then create resources under each building.
-                  </p>
-                  <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-                    Resource control center
-                  </h1>
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
                     Manage buildings, halls, and study areas from one place. Keep locations accurate and maintain resource availability across campus.
                   </p>
 
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-green-100">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Buildings</p>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-blue-100">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Buildings</p>
                       <p className="mt-2 text-2xl font-black text-slate-900">{stats.buildingCount}</p>
                     </div>
-                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-green-100">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Resources</p>
+                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-blue-100">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Resources</p>
                       <p className="mt-2 text-2xl font-black text-slate-900">{stats.resourceCount}</p>
                     </div>
-                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-green-100">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Available</p>
+                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-blue-100">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Available</p>
                       <p className="mt-2 text-2xl font-black text-slate-900">{stats.availableCount}</p>
                     </div>
-                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-green-100">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Maintenance</p>
+                    <div className="rounded-2xl bg-white/90 p-4 ring-1 ring-blue-100">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Maintenance</p>
                       <p className="mt-2 text-2xl font-black text-slate-900">{stats.maintenanceCount}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                  <div className="rounded-3xl bg-green-600 p-5 text-white shadow-xl shadow-green-200">
-                    <p className="text-sm font-medium text-green-100">Live status</p>
+                  <div className="rounded-3xl bg-blue-700 p-5 text-white shadow-xl shadow-blue-200">
+                    <p className="text-sm font-medium text-blue-100">Live status</p>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-2xl font-black">{stats.availableCount}</p>
-                        <p className="text-green-100/90">Available</p>
+                        <p className="text-blue-100/90">Available</p>
                       </div>
                       <div>
                         <p className="text-2xl font-black">{stats.maintenanceCount}</p>
-                        <p className="text-green-100/90">Maintenance</p>
+                        <p className="text-blue-100/90">Maintenance</p>
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-green-50 p-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Resources</p>
+                  <div className="rounded-2xl bg-blue-50 p-4">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Resources</p>
                     <p className="mt-2 text-2xl font-black text-slate-900">{stats.resourceCount}</p>
                   </div>
-                  <div className="rounded-2xl bg-green-50 p-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Active</p>
+                  <div className="rounded-2xl bg-blue-50 p-4">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Active</p>
                     <p className="mt-2 text-2xl font-black text-slate-900">{stats.availableCount}</p>
                   </div>
-                  <div className="rounded-2xl bg-green-50 p-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-green-700">Maintenance</p>
+                  <div className="rounded-2xl bg-blue-50 p-4">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-blue-700">Maintenance</p>
                     <p className="mt-2 text-2xl font-black text-slate-900">{stats.maintenanceCount}</p>
                   </div>
                 </div>
@@ -970,26 +970,26 @@ const AdminResourcesPage = () => {
               </div>
             )}
 
-            <section className="rounded-2xl border border-green-100 bg-white p-2 shadow-sm">
+            <section className="rounded-2xl border border-blue-100 bg-white p-2 shadow-sm">
               <div className="flex flex-wrap gap-2 border-b border-slate-100 p-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('buildings')}
-                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'buildings' ? 'bg-green-600 text-white shadow-sm' : 'text-slate-600 hover:bg-green-50'}`}
+                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'buildings' ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-600 hover:bg-blue-50'}`}
                 >
                   Buildings
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('resources')}
-                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'resources' ? 'bg-green-600 text-white shadow-sm' : 'text-slate-600 hover:bg-green-50'}`}
+                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'resources' ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-600 hover:bg-blue-50'}`}
                 >
                   Resources
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('study-areas')}
-                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'study-areas' ? 'bg-green-600 text-white shadow-sm' : 'text-slate-600 hover:bg-green-50'}`}
+                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeTab === 'study-areas' ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-600 hover:bg-blue-50'}`}
                 >
                   Study Areas
                 </button>
@@ -1006,7 +1006,7 @@ const AdminResourcesPage = () => {
                       <button
                         type="button"
                         onClick={() => openBuildingModal()}
-                        className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600"
                       >
                         <Plus className="h-4 w-4" />
                         Add Building
@@ -1047,7 +1047,7 @@ const AdminResourcesPage = () => {
                                     <button
                                       type="button"
                                       onClick={() => openBuildingModal(building)}
-                                      className="rounded-lg border border-green-200 px-3 py-2 text-xs font-semibold text-green-700 hover:bg-green-50"
+                                      className="rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50"
                                     >
                                       Edit
                                     </button>
@@ -1086,7 +1086,7 @@ const AdminResourcesPage = () => {
                         type="button"
                         onClick={() => openResourceModal()}
                         disabled={buildings.length === 0}
-                        className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300"
                       >
                         <Plus className="h-4 w-4" />
                         Add Resource
@@ -1101,7 +1101,7 @@ const AdminResourcesPage = () => {
                           <input
                             value={resourceFilters.search}
                             onChange={(event) => setResourceFilters((prev) => ({ ...prev, search: event.target.value }))}
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-green-500"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
                             placeholder="Search name, building, block, or description"
                           />
                         </div>
@@ -1111,7 +1111,7 @@ const AdminResourcesPage = () => {
                         <select
                           value={resourceFilters.resourceType}
                           onChange={(event) => setResourceFilters((prev) => ({ ...prev, resourceType: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                         >
                           <option value="">All Types</option>
                           {RESOURCE_TYPES.map((item) => (
@@ -1126,7 +1126,7 @@ const AdminResourcesPage = () => {
                         <select
                           value={resourceFilters.buildingId}
                           onChange={(event) => setResourceFilters((prev) => ({ ...prev, buildingId: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                         >
                           <option value="">All Buildings</option>
                           {buildings.map((building) => (
@@ -1141,7 +1141,7 @@ const AdminResourcesPage = () => {
                         <input
                           value={resourceFilters.location}
                           onChange={(event) => setResourceFilters((prev) => ({ ...prev, location: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                           placeholder="Building, block, or room"
                         />
                       </label>
@@ -1152,7 +1152,7 @@ const AdminResourcesPage = () => {
                           min="1"
                           value={resourceFilters.capacityMin}
                           onChange={(event) => setResourceFilters((prev) => ({ ...prev, capacityMin: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                           placeholder="Any"
                         />
                       </label>
@@ -1161,7 +1161,7 @@ const AdminResourcesPage = () => {
                         <select
                           value={resourceFilters.status}
                           onChange={(event) => setResourceFilters((prev) => ({ ...prev, status: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                         >
                           <option value="">All Statuses</option>
                           {RESOURCE_STATUSES.map((item) => (
@@ -1223,7 +1223,7 @@ const AdminResourcesPage = () => {
                                     <button
                                       type="button"
                                       onClick={() => openResourceModal(resource)}
-                                      className="rounded-lg border border-green-200 px-3 py-2 text-xs font-semibold text-green-700 hover:bg-green-50"
+                                      className="rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50"
                                     >
                                       Edit
                                     </button>
@@ -1255,7 +1255,7 @@ const AdminResourcesPage = () => {
                   <div className="space-y-6">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                       <div>
-                        <h2 className="text-lg font-bold text-slate-900">Study Area Map</h2>
+                        <h2 className="text-lg font-bold text-slate-900">Study Areas</h2>
                       </div>
                       <button
                         type="button"
@@ -1265,7 +1265,7 @@ const AdminResourcesPage = () => {
                           setResourceForm((prev) => ({ ...prev, resourceType: 'STUDY_AREA' }));
                         }}
                         disabled={buildings.length === 0}
-                        className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300"
                       >
                         <Plus className="h-4 w-4" />
                         Add Study Area
@@ -1274,29 +1274,39 @@ const AdminResourcesPage = () => {
 
                     {loadingStudyAreas ? (
                       <div className="py-20 text-center text-slate-500">Loading study areas...</div>
-                    ) : mappedStudyAreas.length === 0 ? (
+                    ) : listedStudyAreas.length === 0 ? (
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-500">
-                        Study area locations not available yet. Add `STUDY_AREA` resources with latitude/longitude.
+                        No study areas available yet. Add a `STUDY_AREA` resource to get started.
                       </div>
                     ) : (
                       <>
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                          {mappedStudyAreas.map((area) => {
-                            const center = [Number(area.latitude), Number(area.longitude)];
+                          {listedStudyAreas.map((area) => {
                             const radius = Number(area.mapRadiusMeters) || 50;
                             const activeCount = studyAreaOccupancy[area.id] || 0;
                             const activeMembers = studyAreaActiveMembers[area.id] || [];
                             const occupancyState = getOccupancyState(activeCount, area.capacity);
+                            const hasCoordinates = Number.isFinite(Number(area.latitude)) && Number.isFinite(Number(area.longitude));
+                            const normalizedCapacity = Number(area.capacity) || 0;
+                            const occupancyPercent = normalizedCapacity > 0
+                              ? Math.round((Number(activeCount) / normalizedCapacity) * 100)
+                              : 0;
+                            const occupancyWidth = Math.max(0, Math.min(occupancyPercent, 100));
+                            const occupancyBarClass = occupancyPercent < 50
+                              ? 'bg-emerald-500'
+                              : occupancyPercent <= 90
+                                ? 'bg-amber-500'
+                                : 'bg-rose-500';
 
                             return (
                               <article key={area.id} className={`rounded-2xl border p-4 shadow-sm ${occupancyState.cardClass}`}>
                                 <div className="flex items-start justify-between gap-3">
                                   <h3 className="inline-flex items-center gap-2 text-base font-bold text-slate-900">
-                                    <MapPin className="h-4 w-4 text-green-700" />
+                                    <MapPin className="h-4 w-4 text-blue-700" />
                                     {area.hallName}
                                   </h3>
                                   <div className="flex flex-col items-end gap-2">
-                                    <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+                                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
                                     {radius} m
                                     </span>
                                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${occupancyState.badgeClass}`}>
@@ -1309,7 +1319,7 @@ const AdminResourcesPage = () => {
                                 <p className="mt-1 text-sm text-slate-600">Capacity: {area.capacity || 0}</p>
 
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">
                                     <Users className="h-3.5 w-3.5" />
                                     {activeCount} active
                                   </span>
@@ -1318,28 +1328,22 @@ const AdminResourcesPage = () => {
                                   </span>
                                 </div>
 
-                                <div className="mt-3 h-44 overflow-hidden rounded-xl border border-slate-200">
-                                  <MapContainer center={center} zoom={17} className="h-full w-full" scrollWheelZoom={false} dragging={false} doubleClickZoom={false} zoomControl={false} attributionControl={false}>
-                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                    <CircleMarker
-                                      center={center}
-                                      radius={8}
-                                      pathOptions={{ color: '#166534', fillColor: '#22c55e', fillOpacity: 0.95 }}
-                                    />
-                                    <Circle
-                                      center={center}
-                                      radius={radius}
-                                      pathOptions={{ color: '#16a34a', fillColor: '#86efac', fillOpacity: 0.25 }}
-                                    />
-                                  </MapContainer>
+                                <div className="mt-3 rounded-xl border border-blue-100 bg-white p-3">
+                                  <div className="mb-1 flex items-center justify-between text-xs font-semibold text-slate-600">
+                                    <span>Occupancy</span>
+                                    <span>{occupancyPercent}%</span>
+                                  </div>
+                                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-blue-100">
+                                    <div className={`h-full rounded-full ${occupancyBarClass}`} style={{ width: `${occupancyWidth}%` }} />
+                                  </div>
                                 </div>
 
                                 <div className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
                                   <p>
-                                    <span className="font-semibold">Latitude:</span> {Number(area.latitude).toFixed(6)}
+                                    <span className="font-semibold">Latitude:</span> {hasCoordinates ? Number(area.latitude).toFixed(6) : '-'}
                                   </p>
                                   <p className="mt-1">
-                                    <span className="font-semibold">Longitude:</span> {Number(area.longitude).toFixed(6)}
+                                    <span className="font-semibold">Longitude:</span> {hasCoordinates ? Number(area.longitude).toFixed(6) : '-'}
                                   </p>
                                 </div>
                               </article>
@@ -1366,7 +1370,7 @@ const AdminResourcesPage = () => {
               <button type="button" onClick={() => setBuildingModalOpen(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                 Cancel
               </button>
-              <button type="button" onClick={handleBuildingSubmit} disabled={buildingSaving} className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+              <button type="button" onClick={handleBuildingSubmit} disabled={buildingSaving} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300">
                 {buildingSaving ? 'Saving...' : 'Save Building'}
               </button>
             </div>
@@ -1378,7 +1382,7 @@ const AdminResourcesPage = () => {
               <input
                 value={buildingForm.buildingName}
                 onChange={(event) => setBuildingForm((prev) => ({ ...prev, buildingName: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                 placeholder="Main Building"
               />
               {buildingErrors.buildingName && <p className="mt-1 text-xs font-medium text-red-600">{buildingErrors.buildingName}</p>}
@@ -1401,7 +1405,7 @@ const AdminResourcesPage = () => {
                     }
                   }
                 }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                 aria-describedby="block-count-helper"
               />
               <p id="block-count-helper" className="mt-1 text-xs text-slate-500">
@@ -1439,7 +1443,7 @@ const AdminResourcesPage = () => {
                             focusFloorCount(index);
                           }
                         }}
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                         placeholder="A"
                       />
                       {buildingErrors.blocks?.[index]?.blockName && (
@@ -1473,7 +1477,7 @@ const AdminResourcesPage = () => {
                             }
                           }
                         }}
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                         placeholder="3"
                       />
                       {buildingErrors.blocks?.[index]?.floorCount && (
@@ -1498,7 +1502,7 @@ const AdminResourcesPage = () => {
               <button type="button" onClick={() => setResourceModalOpen(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                 Cancel
               </button>
-              <button type="button" onClick={handleResourceSubmit} disabled={resourceSaving} className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+              <button type="button" onClick={handleResourceSubmit} disabled={resourceSaving} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300">
                 {resourceSaving ? 'Saving...' : 'Save Resource'}
               </button>
             </div>
@@ -1522,7 +1526,7 @@ const AdminResourcesPage = () => {
                     pcCount: nextType === 'STUDY_AREA' ? 0 : prev.pcCount,
                   }));
                 }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               >
                 {RESOURCE_TYPES.map((item) => (
                   <option key={item.value} value={item.value}>{item.label}</option>
@@ -1547,7 +1551,7 @@ const AdminResourcesPage = () => {
                     hallName: firstBlock?.blockName ? generateHallName(firstBlock.blockName, 1, prev.hallNumber) : '',
                   }));
                 }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               >
                 <option value="">Select building</option>
                 {buildings.map((building) => (
@@ -1571,7 +1575,7 @@ const AdminResourcesPage = () => {
                     hallName: generateHallName(blockName, 1, prev.hallNumber),
                   }));
                 }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500 disabled:bg-slate-100"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
               >
                 <option value="">Select block</option>
                 {selectedBuilding?.blocks?.map((block) => (
@@ -1594,7 +1598,7 @@ const AdminResourcesPage = () => {
                     hallName: generateHallName(prev.blockName, floorNumber, prev.hallNumber),
                   }));
                 }}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500 disabled:bg-slate-100"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 disabled:bg-slate-100"
               >
                 {!selectedBlock ? (
                   <option value="">Select block first</option>
@@ -1615,7 +1619,7 @@ const AdminResourcesPage = () => {
                 max="99"
                 value={resourceForm.hallNumber}
                 onChange={(event) => setResourceForm((prev) => ({ ...prev, hallNumber: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               />
               {resourceErrors.hallNumber && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.hallNumber}</p>}
             </label>
@@ -1636,13 +1640,13 @@ const AdminResourcesPage = () => {
                 min="1"
                 value={resourceForm.capacity}
                 onChange={(event) => setResourceForm((prev) => ({ ...prev, capacity: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               />
               {resourceErrors.capacity && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.capacity}</p>}
             </label>
 
             {resourceForm.resourceType !== 'STUDY_AREA' && (
-              <div className="md:col-span-2 rounded-2xl border border-green-100 bg-green-50/40 p-4">
+              <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
                 <p className="text-sm font-semibold text-slate-900">Equipment in Hall</p>
                 <p className="mt-1 text-xs text-slate-500">Enter counts for equipment available in this hall.</p>
 
@@ -1654,7 +1658,7 @@ const AdminResourcesPage = () => {
                       min="0"
                       value={resourceForm.projectorCount}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, projectorCount: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="0"
                     />
                     {resourceErrors.projectorCount && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.projectorCount}</p>}
@@ -1667,7 +1671,7 @@ const AdminResourcesPage = () => {
                       min="0"
                       value={resourceForm.cameraCount}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, cameraCount: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="0"
                     />
                     {resourceErrors.cameraCount && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.cameraCount}</p>}
@@ -1680,7 +1684,7 @@ const AdminResourcesPage = () => {
                       min="0"
                       value={resourceForm.pcCount}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, pcCount: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="0"
                     />
                     {resourceErrors.pcCount && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.pcCount}</p>}
@@ -1694,7 +1698,7 @@ const AdminResourcesPage = () => {
               <select
                 value={resourceForm.status}
                 onChange={(event) => setResourceForm((prev) => ({ ...prev, status: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               >
                 {RESOURCE_STATUSES.map((item) => (
                   <option key={item.value} value={item.value}>{item.label}</option>
@@ -1708,13 +1712,13 @@ const AdminResourcesPage = () => {
                 rows="4"
                 value={resourceForm.description}
                 onChange={(event) => setResourceForm((prev) => ({ ...prev, description: event.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                 placeholder="Optional description"
               />
             </label>
 
             {resourceForm.resourceType === 'STUDY_AREA' && (
-              <div className="md:col-span-2 space-y-4 rounded-2xl border border-green-200 bg-green-50/40 p-4">
+              <div className="md:col-span-2 space-y-4 rounded-2xl border border-blue-200 bg-blue-50/40 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">Study Area Location</p>
@@ -1724,7 +1728,7 @@ const AdminResourcesPage = () => {
                     type="button"
                     onClick={useCurrentLocation}
                     disabled={locating}
-                    className="rounded-lg border border-green-300 bg-white px-3 py-2 text-xs font-semibold text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-lg border border-blue-300 bg-white px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {locating ? 'Detecting...' : 'Use Current Location'}
                   </button>
@@ -1738,7 +1742,7 @@ const AdminResourcesPage = () => {
                       step="any"
                       value={resourceForm.latitude}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, latitude: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="6.9068"
                     />
                     {resourceErrors.latitude && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.latitude}</p>}
@@ -1751,7 +1755,7 @@ const AdminResourcesPage = () => {
                       step="any"
                       value={resourceForm.longitude}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, longitude: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="79.8703"
                     />
                     {resourceErrors.longitude && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.longitude}</p>}
@@ -1764,7 +1768,7 @@ const AdminResourcesPage = () => {
                       min="1"
                       value={resourceForm.mapRadiusMeters}
                       onChange={(event) => setResourceForm((prev) => ({ ...prev, mapRadiusMeters: event.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                       placeholder="50"
                     />
                     {resourceErrors.mapRadiusMeters && <p className="mt-1 text-xs font-medium text-red-600">{resourceErrors.mapRadiusMeters}</p>}
@@ -1848,3 +1852,4 @@ const AdminResourcesPage = () => {
 };
 
 export default AdminResourcesPage;
+

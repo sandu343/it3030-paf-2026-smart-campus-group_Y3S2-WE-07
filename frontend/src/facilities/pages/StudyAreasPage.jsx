@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Circle, CircleMarker, MapContainer, TileLayer } from 'react-leaflet';
-import { ArrowLeft, BookOpen, MapPin, Users } from 'lucide-react';
+import { useAuth } from '../../context/AuthContextObject';
+import { BookOpen, Users } from 'lucide-react';
 import PortalHeader from '../../components/PortalHeader';
 import {
   checkInUserLocation,
@@ -10,7 +9,6 @@ import {
   getStudyAreaOccupancy,
   getStudyAreasForUser,
 } from '../services/facilitiesService';
-import 'leaflet/dist/leaflet.css';
 
 const LOCATION_CHECKIN_INTERVAL_MS = 60 * 1000;
 const OCCUPANCY_REFRESH_INTERVAL_MS = 20 * 1000;
@@ -194,17 +192,7 @@ export default function StudyAreasPage() {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  const mappedStudyAreas = useMemo(
-    () => studyAreas.filter((item) => Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))),
-    [studyAreas],
-  );
-
-  const getZoomForRadius = (radiusMeters) => {
-    if (radiusMeters <= 30) return 20;
-    if (radiusMeters <= 60) return 19;
-    if (radiusMeters <= 120) return 18;
-    return 17;
-  };
+  const displayStudyAreas = useMemo(() => (Array.isArray(studyAreas) ? studyAreas : []), [studyAreas]);
 
   const distanceMeters = (lat1, lon1, lat2, lon2) => {
     const earthRadius = 6371000;
@@ -231,23 +219,13 @@ export default function StudyAreasPage() {
     ) <= radius;
   };
 
-  const getCircleColors = (activeCount, capacity) => {
+  const getOccupancyPercentage = (activeCount, capacity) => {
     const normalizedCapacity = Number(capacity) || 0;
     if (normalizedCapacity <= 0) {
-      return { stroke: '#16a34a', fill: '#86efac' };
+      return 0;
     }
 
-    const percentage = (Number(activeCount) / normalizedCapacity) * 100;
-
-    if (percentage < 50) {
-      return { stroke: '#16a34a', fill: '#86efac' };
-    }
-
-    if (percentage <= 90) {
-      return { stroke: '#ca8a04', fill: '#fde047' };
-    }
-
-    return { stroke: '#dc2626', fill: '#fca5a5' };
+    return Math.min(100, Math.round((Number(activeCount) / normalizedCapacity) * 100));
   };
 
   const getOccupancyState = (activeCount, capacity) => {
@@ -256,7 +234,8 @@ export default function StudyAreasPage() {
       return {
         label: 'Normal',
         badgeClass: 'bg-emerald-100 text-emerald-800',
-        cardClass: 'border-emerald-200 bg-emerald-50/40',
+        cardClass: 'border-blue-100 bg-white',
+        barClass: 'bg-emerald-500',
       };
     }
 
@@ -266,7 +245,8 @@ export default function StudyAreasPage() {
       return {
         label: 'Normal',
         badgeClass: 'bg-emerald-100 text-emerald-800',
-        cardClass: 'border-emerald-200 bg-emerald-50/40',
+        cardClass: 'border-blue-100 bg-white',
+        barClass: 'bg-emerald-500',
       };
     }
 
@@ -274,19 +254,21 @@ export default function StudyAreasPage() {
       return {
         label: 'Busy',
         badgeClass: 'bg-amber-100 text-amber-800',
-        cardClass: 'border-amber-200 bg-amber-50/50',
+        cardClass: 'border-blue-100 bg-white',
+        barClass: 'bg-amber-500',
       };
     }
 
     return {
       label: 'Crowded',
       badgeClass: 'bg-rose-100 text-rose-800',
-      cardClass: 'border-rose-200 bg-rose-50/50',
+      cardClass: 'border-blue-100 bg-white',
+      barClass: 'bg-rose-500',
     };
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1000px_600px_at_10%_-10%,#dcfce7_0%,#f8fafc_42%,#f0fdf4_100%)] text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(1200px_680px_at_10%_-10%,rgba(59,130,246,0.10)_0%,#F8FAFC_42%,#F5F7FA_100%)] text-slate-900">
       <PortalHeader
         user={user}
         onLogout={logout}
@@ -335,13 +317,13 @@ export default function StudyAreasPage() {
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Smart Campus</p>
-            <h1 className="text-2xl font-black text-emerald-900">Study Areas</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1E3A8A]">Smart Campus</p>
+            <h1 className="text-2xl font-black text-[#1E3A8A]">Study Areas</h1>
             <p className="mt-1 text-sm text-slate-600">Available study areas for students.</p>
-            {locationInfo && <p className="mt-2 text-xs font-medium text-emerald-700">{locationInfo}</p>}
+            {locationInfo && <p className="mt-2 text-xs font-medium text-[#1E3A8A]">{locationInfo}</p>}
           </div>
         </div>
 
@@ -351,33 +333,31 @@ export default function StudyAreasPage() {
           <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
         )}
 
-        {!loading && !error && mappedStudyAreas.length === 0 && (
+        {!loading && !error && displayStudyAreas.length === 0 && (
           <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
             No study areas available right now.
           </p>
         )}
 
-        {!loading && !error && mappedStudyAreas.length > 0 && (
+        {!loading && !error && displayStudyAreas.length > 0 && (
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {mappedStudyAreas.map((area) => {
-              const center = [Number(area.latitude), Number(area.longitude)];
+            {displayStudyAreas.map((area) => {
               const radius = Number(area.mapRadiusMeters) || 50;
-              const mapZoom = getZoomForRadius(radius);
               const activeCount = occupancyMap[area.id] || 0;
               const activeMembers = activeMembersMap[area.id] || [];
               const inside = isUserInsideArea(area);
-              const circleColors = getCircleColors(activeCount, area.capacity);
+              const occupancyPercent = getOccupancyPercentage(activeCount, area.capacity);
               const occupancyState = getOccupancyState(activeCount, area.capacity);
 
               return (
                 <article key={area.id} className={`rounded-3xl border p-5 shadow-sm ${occupancyState.cardClass}`}>
                   <div className="flex items-start justify-between gap-3">
-                    <h2 className="inline-flex items-center gap-2 text-lg font-bold text-emerald-900">
-                      <BookOpen className="h-5 w-5 text-emerald-600" />
+                    <h2 className="inline-flex items-center gap-2 text-lg font-bold text-[#1E3A8A]">
+                      <BookOpen className="h-5 w-5 text-[#3B82F6]" />
                       {area.hallName}
                     </h2>
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                      {radius} m
+                    <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-[#1E3A8A]">
+                      {activeCount}/{area.capacity || 0}
                     </span>
                   </div>
 
@@ -393,9 +373,9 @@ export default function StudyAreasPage() {
                           You are here
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-[#1E3A8A]">
                         <Users className="h-3.5 w-3.5" />
-                        {activeCount}
+                        {activeMembers.length}
                       </span>
                     </div>
                   </div>
@@ -403,67 +383,26 @@ export default function StudyAreasPage() {
 
                   <div className="mt-2">
                     <span className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold ${occupancyState.badgeClass}`}>
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: circleColors.stroke }} />
+                      <span className={`h-2 w-2 rounded-full ${occupancyState.barClass}`} />
                       {occupancyState.label}
                     </span>
                   </div>
 
-                  <div className="mt-3 h-44 overflow-hidden rounded-2xl border border-slate-200">
-                    <MapContainer
-                      center={center}
-                      zoom={mapZoom}
-                      className="h-full w-full"
-                      scrollWheelZoom={false}
-                      dragging={false}
-                      doubleClickZoom={false}
-                      zoomControl={false}
-                      attributionControl={false}
-                    >
-                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      <CircleMarker
-                        center={center}
-                        radius={8}
-                        pathOptions={{ color: '#166534', fillColor: '#22c55e', fillOpacity: 0.95 }}
+                  <div className="mt-4">
+                    <div className="mb-1 flex items-center justify-between text-xs font-semibold text-slate-600">
+                      <span>Current Students</span>
+                      <span>{occupancyPercent}%</span>
+                    </div>
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+                      <div
+                        className={`h-full rounded-full transition-all ${occupancyState.barClass}`}
+                        style={{ width: `${occupancyPercent}%` }}
                       />
-                      <Circle
-                        center={center}
-                        radius={radius}
-                        pathOptions={{ color: circleColors.stroke, fillColor: circleColors.fill, fillOpacity: 0.25 }}
-                      />
-                      {activeMembers.map((member, index) => (
-                        <CircleMarker
-                          key={`${member.userId || 'member'}-${index}`}
-                          center={[Number(member.latitude), Number(member.longitude)]}
-                          radius={5}
-                          pathOptions={{ color: '#7c3aed', fillColor: '#8b5cf6', fillOpacity: 0.95 }}
-                        />
-                      ))}
-                      {userLocation && (
-                        <CircleMarker
-                          center={[userLocation.latitude, userLocation.longitude]}
-                          radius={6}
-                          pathOptions={{
-                            color: inside ? '#0f766e' : '#1d4ed8',
-                            fillColor: inside ? '#14b8a6' : '#3b82f6',
-                            fillOpacity: 0.95,
-                          }}
-                        />
-                      )}
-                    </MapContainer>
+                    </div>
                   </div>
 
-                  <a
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-                    href={`https://www.openstreetmap.org/?mlat=${Number(area.latitude)}&mlon=${Number(area.longitude)}#map=${mapZoom}/${Number(area.latitude)}/${Number(area.longitude)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    Open location
-                  </a>
-
-                  <p className="mt-2 text-xs text-slate-500">
-                    {Number(area.latitude).toFixed(6)}, {Number(area.longitude).toFixed(6)}
+                  <p className="mt-3 text-xs text-slate-500">
+                    Radius limit: {radius}m
                   </p>
                 </article>
               );

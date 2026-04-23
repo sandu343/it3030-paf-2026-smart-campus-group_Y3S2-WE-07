@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { setToken, setUser } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
 
 const AuthCallbackPage = () => {
   const [searchParams] = useSearchParams();
@@ -43,24 +43,14 @@ const AuthCallbackPage = () => {
     } else {
       navigate('/login?error=Missing authentication data');
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, setAuthUser]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '40px',
-        borderRadius: '12px',
-        textAlign: 'center'
-      }}>
-        <h2>Authenticating...</h2>
-        <p>Please wait while we complete your login.</p>
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#F8FAFC_45%,_#EEF2FF_100%)] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 h-9 w-9 animate-spin rounded-full border-2 border-blue-200 border-t-blue-700" />
+        <h2 className="text-xl font-bold text-slate-900">Authenticating...</h2>
+        <p className="mt-2 text-sm text-slate-600">Please wait while we complete your login.</p>
       </div>
     </div>
   );

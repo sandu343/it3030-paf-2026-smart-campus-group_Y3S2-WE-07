@@ -1,4 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api/v1/tickets'
+const API_ROOT = import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+const API_BASE_URL = API_ROOT.endsWith('/v1/tickets')
+  ? API_ROOT
+  : `${API_ROOT.replace(/\/+$/, '')}/v1/tickets`
 
 const getHeaders = () => {
   // Match authService storage: sessionStorage with key 'smartcampus_session_token'

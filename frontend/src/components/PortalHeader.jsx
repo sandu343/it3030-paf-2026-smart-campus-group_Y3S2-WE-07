@@ -14,13 +14,13 @@ const PortalHeader = ({
   showBackButton = false,
 }) => {
   return (
-    <header className="sticky top-0 z-40 border-b border-green-100 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-[rgba(248,250,252,0.92)] backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <div className="flex items-center gap-3">
           {showBackButton && (
             <button
               onClick={onBack}
-              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-green-100 bg-white text-green-700 shadow-sm transition hover:bg-green-50"
+              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-[#1E3A8A] shadow-sm transition hover:bg-blue-50"
               aria-label="Back"
               type="button"
             >
@@ -29,12 +29,15 @@ const PortalHeader = ({
           )}
 
           <Link to="/dashboard" className="flex items-center gap-3" aria-label="Go to dashboard">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-600 text-white shadow-lg shadow-green-200">
-              <Home className="h-6 w-6" />
-            </div>
+
+            <img
+              src="/logo.png"
+              alt="Smart Campus logo"
+              className="h-12 w-12 rounded-2xl border border-slate-200 bg-white object-contain p-1.5 shadow-sm"
+            />
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-green-600">Smart Campus</p>
-              <h1 className="text-3xl font-black leading-7 text-slate-900">Operations Hub</h1>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#3B82F6]">Smart Campus</p>
+              <h1 className="text-3xl font-black leading-7 text-slate-900">C R M S</h1>
             </div>
           </Link>
         </div>
@@ -55,8 +58,8 @@ const PortalHeader = ({
             </button>
           )}
 
-          <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-[14px] border border-green-100 bg-white px-4 py-2">
-            <Search className="h-4 w-4 text-green-600" />
+          <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-4 py-2">
+            <Search className="h-4 w-4 text-[#3B82F6]" />
             <input
               type="text"
               placeholder="Search bookings, tickets, resources..."
@@ -64,13 +67,13 @@ const PortalHeader = ({
             />
           </label>
 
-          <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-green-100 bg-white text-slate-700 hover:bg-green-50">
+          <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-slate-700 hover:bg-blue-50">
             <NotificationBell onBellClick={() => setIsNotificationOpen((value) => !value)} />
             <NotificationDropdown isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-3 rounded-[14px] border border-green-100 bg-white px-3 py-2 shadow-sm">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+          <div className="flex items-center gap-3 rounded-[14px] border border-slate-200 bg-white px-3 py-2 shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3B82F6] text-sm font-bold text-white">
               {user?.name?.charAt(0)?.toUpperCase() || 'N'}
             </div>
             <div>
@@ -81,7 +84,7 @@ const PortalHeader = ({
 
           <button
             onClick={onLogout}
-            className="inline-flex items-center gap-2 rounded-[14px] bg-green-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-green-700"
+            className="inline-flex items-center gap-2 rounded-[14px] bg-[#10B981] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#059669]"
             type="button"
           >
             <LogOut className="h-4 w-4" />

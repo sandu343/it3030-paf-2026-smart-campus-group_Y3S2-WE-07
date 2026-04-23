@@ -8,21 +8,23 @@ import UserRoute from './components/auth/UserRoute';
 import AuthCallbackPage from './pages/AuthCallbackPage';
 import AdminBookingsPage from './pages/AdminBookingsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import Alert from './pages/Alert';
 import AdminResourcesPage from './pages/AdminResourcesPage';
 import AdminTicketsPage from './pages/AdminTicketsPage';
 import AdminTechniciansPage from './pages/AdminTechniciansPage';
 import EnhancedRegistrationPage from './pages/EnhancedRegistrationPage';
 import ForceChangePasswordPage from './pages/ForceChangePasswordPage';
+import ForgotPassword from './pages/ForgotPassword';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegistrationPage from './pages/RegistrationPage';
+import ResetPassword from './pages/ResetPassword';
 import StaffLoginPage from './pages/StaffLoginPage';
 import TechnicianDashboardPage from './pages/TechnicianDashboardPage';
 import TechnicianTicketsPage from './pages/TechnicianTicketsPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import UserBookingsPage from './pages/UserBookingsPage';
 import { IncidentTicketingPage } from './pages/Incident_tickting';
+import VerifyEmail from './pages/VerifyEmail';
 import './App.css';
 import StudyAreasPage from './facilities/pages/StudyAreasPage';
 
@@ -38,6 +40,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register-enhanced" element={<EnhancedRegistrationPage />} />
           <Route path="/staff/login" element={<StaffLoginPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
@@ -56,7 +61,6 @@ function App() {
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/resources" element={<AdminResourcesPage />} />
-            <Route path="/admin/alerts" element={<Alert />} />
             <Route path="/admin/technicians" element={<AdminTechniciansPage />} />
             <Route path="/admin/tickets" element={<AdminTicketsPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
