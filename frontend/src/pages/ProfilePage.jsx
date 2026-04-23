@@ -7,7 +7,7 @@ import {
   Loader2,
   Shield,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
 import { changePassword, getUser } from '../services/authService';
 
 const getStrength = (password) => {

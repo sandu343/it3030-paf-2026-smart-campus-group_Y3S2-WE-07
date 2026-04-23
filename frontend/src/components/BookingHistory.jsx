@@ -113,7 +113,7 @@ const BookingHistory = ({ bookingId, compact = false }) => {
     return colors[status] || 'gray';
   };
 
-  const getStatusIcon = (status) => {
+  const _getStatusIcon = (status) => {
     const icons = {
       CREATED: '📅',
       APPROVED: '✅',
@@ -134,7 +134,7 @@ const BookingHistory = ({ bookingId, compact = false }) => {
         hour: '2-digit',
         minute: '2-digit',
       });
-    } catch (e) {
+    } catch {
       return dateString;
     }
   };

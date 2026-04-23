@@ -1,15 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { isAuthenticated, getUser, logout, getProfile, setUser as persistUser } from '../services/authService';
-
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+import { AuthContext } from './AuthContextObject';
 
 export const AuthProvider = ({ children }) => {
   const [user, setCurrentUser] = useState(null);
@@ -38,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
           persistUser(mergedUser);
           setCurrentUser(mergedUser);
-        } catch (error) {
+        } catch {
           // Token is invalid or expired, clear it
           logout();
           setCurrentUser(null);

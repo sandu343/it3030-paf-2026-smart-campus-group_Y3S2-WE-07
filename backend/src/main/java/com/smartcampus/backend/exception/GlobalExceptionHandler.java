@@ -112,17 +112,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(CampusAlertNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCampusAlertNotFound(CampusAlertNotFoundException ex) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                null,
-                Instant.now());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleCustomValidation(ValidationException ex) {
         ErrorResponse error = new ErrorResponse(

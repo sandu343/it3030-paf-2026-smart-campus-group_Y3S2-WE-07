@@ -5,6 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
 // Campus email pattern: 2 letters (case-insensitive) + 8 digits + @my.sliit.lk
 // Examples: IT12345678@my.sliit.lk, it12345678@my.sliit.lk, CS87654321@my.sliit.lk
 const CAMPUS_EMAIL_PATTERN = /^[A-Za-z]{2}\d{8}@my\.sliit\.lk$/;
+const CAMPUS_ID_PATTERN = /^[A-Za-z]{2}\d{8}$/;
 
 // Token storage key
 const TOKEN_KEY = 'smartcampus_token';
@@ -22,6 +23,43 @@ export const isValidCampusEmail = (email) => {
     return false;
   }
   return CAMPUS_EMAIL_PATTERN.test(email.trim());
+};
+
+/**
+ * Convert campus ID or campus email into normalized email.
+ * Input: IT12345678 OR IT12345678@my.sliit.lk
+ * Output: IT12345678@my.sliit.lk
+ */
+export const normalizeCampusIdentity = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  const idMatch = trimmed.match(/^([A-Za-z]{2})(\d{8})$/);
+  if (idMatch) {
+    const [, prefix, digits] = idMatch;
+    return `${prefix.toUpperCase()}${digits}@my.sliit.lk`;
+  }
+
+  const emailMatch = trimmed.match(/^([A-Za-z]{2})(\d{8})@my\.sliit\.lk$/i);
+  if (emailMatch) {
+    const [, prefix, digits] = emailMatch;
+    return `${prefix.toUpperCase()}${digits}@my.sliit.lk`;
+  }
+
+  return '';
+};
+
+/**
+ * Validate either campus ID or campus email.
+ */
+export const isValidCampusIdentity = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) {
+    return false;
+  }
+  return CAMPUS_ID_PATTERN.test(trimmed) || CAMPUS_EMAIL_PATTERN.test(trimmed);
 };
 
 /**
@@ -70,7 +108,7 @@ export const removeUser = () => {
 /**
  * Register a new user
  */
-export const register = async (name, email, password, phone) => {
+export const registerUserAccount = async (name, email, password, phone = '') => {
   try {
     const response = await axios.post(`${API_BASE}/auth/register`, {
       name,
@@ -81,14 +119,20 @@ export const register = async (name, email, password, phone) => {
 
     const data = response.data;
 
-    // Store token and user data
-    setToken(data.token);
-    setUser(data.user);
-
     return data;
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message || 'Registration failed');
   }
+};
+
+export const register = async (name, email, password, phone = '') => {
+  const data = await registerUserAccount(name, email, password, phone);
+
+  // Store token and user data
+  setToken(data.token);
+  setUser(data.user);
+
+  return data;
 };
 
 /**
@@ -109,7 +153,21 @@ export const login = async (email, password) => {
 
     return data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || error.message || 'Login failed');
+    const status = error?.response?.status;
+    const backendMessage = String(error?.response?.data?.message || '');
+    const normalizedMessage = backendMessage.toLowerCase();
+
+    if (
+      status === 401 ||
+      status === 403 ||
+      status === 503 ||
+      normalizedMessage.includes('unable to connect to the database') ||
+      normalizedMessage.includes('invalid credentials')
+    ) {
+      throw new Error('Invalid email or password. Please try again.');
+    }
+
+    throw new Error(backendMessage || error.message || 'Login failed');
   }
 };
 

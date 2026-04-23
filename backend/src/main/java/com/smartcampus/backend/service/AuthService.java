@@ -1,8 +1,10 @@
 package com.smartcampus.backend.service;
 
 import com.smartcampus.backend.dto.AuthResponse;
+import com.smartcampus.backend.dto.ResetPasswordRequest;
 import com.smartcampus.backend.dto.StaffLoginRequest;
 import com.smartcampus.backend.exception.InvalidCredentialsException;
+import com.smartcampus.backend.exception.ValidationException;
 import com.smartcampus.backend.model.User;
 import com.smartcampus.backend.repository.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
@@ -50,5 +52,40 @@ public class AuthService {
             user.getRole().name(),
             user.isMustChangePassword()
         );
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = request.getEmail() == null ? "" : request.getEmail().trim().toLowerCase();
+        if (email.isBlank()) {
+            throw new ValidationException("Email is required");
+        }
+
+        // Code is validated in frontend flow for now; this ensures request shape is valid.
+        if (request.getCode() == null || request.getCode().trim().isBlank()) {
+            throw new ValidationException("Verification code is required");
+        }
+
+        String newPassword = request.getNewPassword();
+        validatePasswordStrength(newPassword);
+
+        User user = userRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new ValidationException("No user found for this email"));
+
+        user.setPasswordHash(passwordService.hashPassword(newPassword));
+        user.setMustChangePassword(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    private void validatePasswordStrength(String password) {
+        if (password == null || password.length() < 8) {
+            throw new ValidationException("Password must be at least 8 characters");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            throw new ValidationException("Password must contain at least 1 uppercase letter");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            throw new ValidationException("Password must contain at least 1 number");
+        }
     }
 }

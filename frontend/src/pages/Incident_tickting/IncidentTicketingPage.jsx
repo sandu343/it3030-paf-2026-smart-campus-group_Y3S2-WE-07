@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContextObject'
 import { useNavigate } from 'react-router-dom'
 import PortalHeader from '../../components/PortalHeader'
 import TicketListPage from './pages/TicketListPage'
@@ -53,7 +53,7 @@ export const IncidentTicketingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1000px_600px_at_10%_-10%,#dcfce7_0%,#f8fafc_42%,#f0fdf4_100%)] text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(1200px_680px_at_10%_-10%,rgba(59,130,246,0.10)_0%,#F8FAFC_42%,#F5F7FA_100%)] text-slate-900">
       <PortalHeader
         user={user}
         onLogout={handleLogout}
@@ -74,7 +74,7 @@ export const IncidentTicketingPage = () => {
       />
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-[1320px] px-4 py-5 sm:px-6">
         {currentView === 'list' && (
           <TicketListPage
             isAdmin={isAdmin}

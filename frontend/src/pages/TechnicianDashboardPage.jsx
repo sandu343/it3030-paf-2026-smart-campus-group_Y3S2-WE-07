@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ClipboardList, Clock3, LogOut, UserCircle, Wrench } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextObject';
 
 const TechnicianDashboardPage = () => {
   const navigate = useNavigate();

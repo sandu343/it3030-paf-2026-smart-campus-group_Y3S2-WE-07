@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getNotifications, markAsRead, markAllAsRead } from '../services/notificationService';
 
 const NotificationDropdown = ({ isOpen, onClose }) => {
@@ -6,7 +6,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const data = await getNotifications();
       const sortedNotifications = [...data].sort(
@@ -19,7 +19,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -27,7 +27,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     } else {
       setLoading(true);
     }
-  }, [isOpen]);
+  }, [isOpen, fetchNotifications]);
 
   useEffect(() => {
     const handleNotificationsUpdated = () => {
@@ -41,7 +41,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     return () => {
       window.removeEventListener('smartcampus-notifications-updated', handleNotificationsUpdated);
     };
-  }, [isOpen]);
+  }, [isOpen, fetchNotifications]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -53,7 +53,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
+  }, [isOpen, fetchNotifications]);
 
   const handleMarkAsRead = async (notificationId) => {
     try {
@@ -87,11 +87,11 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleClickOutside = (event) => {
+  const handleClickOutside = useCallback((event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       onClose();
     }
-  };
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,7 +101,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     }
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, handleClickOutside]);
 
   const formatTimestamp = (dateString) => {
     const date = new Date(dateString);

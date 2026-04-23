@@ -36,7 +36,7 @@ const makeSecurePassword = () => {
 const getBarColor = (count) => {
   if (count >= 7) return 'bg-red-500';
   if (count >= 4) return 'bg-amber-500';
-  return 'bg-green-500';
+  return 'bg-blue-500';
 };
 
 const TechnicianManager = () => {
@@ -94,7 +94,7 @@ const TechnicianManager = () => {
             message: `Taken. Try ${form.username.trim().toLowerCase()}2`,
           });
         }
-      } catch (err) {
+      } catch {
         const existsLocally = technicians.some(
           (t) => (t.username || '').toLowerCase() === form.username.trim().toLowerCase()
         );
@@ -105,13 +105,13 @@ const TechnicianManager = () => {
             message: `Taken. Try ${form.username.trim().toLowerCase()}2`,
           });
         } else {
-          setUsernameStatus({ checking: false, available: true, message: 'Available ✓' });
+          setUsernameStatus({ checking: false, available: true, message: 'Available' });
         }
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [form.username, isModalOpen]);
+  }, [form.username, isModalOpen, technicians]);
 
   const stats = useMemo(() => {
     const total = technicians.length;
@@ -198,7 +198,7 @@ const TechnicianManager = () => {
   const copyText = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
-    } catch (err) {
+    } catch {
       setError('Failed to copy to clipboard');
     }
   };
@@ -216,7 +216,7 @@ const TechnicianManager = () => {
           <button
             type="button"
             onClick={openModal}
-            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-white transition hover:bg-emerald-600"
           >
             <UserPlus className="h-4 w-4" />
             Add Technician
@@ -229,18 +229,18 @@ const TechnicianManager = () => {
       )}
 
       <div className="flex gap-4 mb-6">
-        <div className="flex-1 rounded-xl border border-green-100 bg-green-50 p-4">
+        <div className="flex-1 rounded-xl border border-blue-100 bg-blue-50 p-4">
           <p className="text-sm text-slate-500">Total Technicians</p>
           <div className="flex items-center justify-between mt-2">
             <p className="text-2xl font-semibold text-slate-900">{stats.total}</p>
-            <Users className="h-5 w-5 text-green-700" />
+            <Users className="h-5 w-5 text-blue-700" />
           </div>
         </div>
-        <div className="flex-1 rounded-xl bg-green-50 p-4 border border-green-100">
+        <div className="flex-1 rounded-xl bg-blue-50 p-4 border border-blue-100">
           <p className="text-sm text-slate-500">Active Now</p>
           <div className="flex items-center justify-between mt-2">
             <p className="text-2xl font-semibold text-slate-900">{stats.activeNow}</p>
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-3 w-3 rounded-full bg-blue-500" />
           </div>
         </div>
         <div className="flex-1 rounded-xl bg-slate-50 p-4 border border-slate-200">
@@ -264,7 +264,7 @@ const TechnicianManager = () => {
           <button
             type="button"
             onClick={openModal}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-white transition hover:bg-emerald-600"
           >
             <UserPlus className="h-4 w-4" />
             Add Technician
@@ -286,7 +286,7 @@ const TechnicianManager = () => {
               <div key={tech.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex justify-between">
                   <div className="flex gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 font-bold text-green-700">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
                       {initials || 'NA'}
                     </div>
                     <div>
@@ -294,7 +294,7 @@ const TechnicianManager = () => {
                       <p className="text-slate-500 text-sm">@{tech.username}</p>
                     </div>
                   </div>
-                  <div className={`h-2.5 w-2.5 rounded-full ${activeTickets > 0 ? 'bg-green-500' : 'bg-slate-400'}`} />
+                  <div className={`h-2.5 w-2.5 rounded-full ${activeTickets > 0 ? 'bg-blue-500' : 'bg-slate-400'}`} />
                 </div>
 
                 <div className="space-y-2 mt-3">
@@ -333,7 +333,7 @@ const TechnicianManager = () => {
                   >
                     Deactivate
                   </button>
-                  <button type="button" className="ml-auto text-sm text-green-700 hover:text-green-800">
+                  <button type="button" className="ml-auto text-sm text-blue-700 hover:text-blue-800">
                     View tickets
                   </button>
                 </div>
@@ -343,199 +343,202 @@ const TechnicianManager = () => {
         </div>
       )}
 
-      <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white border-l border-slate-200 shadow-2xl z-50 transition-transform duration-300 ${
-          isModalOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="font-semibold text-slate-900">Add New Technician</h3>
-          <button type="button" onClick={closeModal} className="text-slate-500 hover:text-slate-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {modalSuccess ? (
-          <div className="p-6 flex flex-col gap-4">
-            <div className="h-12 w-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
-              <Check className="h-6 w-6" />
-            </div>
-            <p className="text-green-700 font-semibold">Technician account created!</p>
-            <div className="rounded-lg bg-slate-900 text-slate-100 p-3 text-sm">
-              <p>Username: {createdCredentials.username}</p>
-              <p>Password: {createdCredentials.password}</p>
-            </div>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center gap-2 border border-slate-300 rounded-lg px-3 py-2"
-              onClick={() => copyText(`Username: ${createdCredentials.username}\nPassword: ${createdCredentials.password}`)}
-            >
-              <Copy className="h-4 w-4" />
-              Copy credentials
-            </button>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="flex-1 border border-slate-300 rounded-lg py-2"
-                onClick={resetForm}
-              >
-                Add another
-              </button>
-              <button
-                type="button"
-                className="flex-1 rounded-lg bg-green-600 py-2 text-white hover:bg-green-700"
-                onClick={() => {
-                  closeModal();
-                  loadTechnicians();
-                }}
-              >
-                Done
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 py-6">
+          <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <h3 className="font-semibold text-slate-900">Add New Technician</h3>
+              <button type="button" onClick={closeModal} className="text-slate-500 hover:text-slate-700">
+                <X className="h-4 w-4" />
               </button>
             </div>
-          </div>
-        ) : (
-          <form onSubmit={onCreate} className="h-[calc(100%-80px)] flex flex-col">
-            <div className="p-6 space-y-5 overflow-y-auto flex-1">
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Full Name</span>
-                <div className="relative">
-                  <User className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2"
-                    placeholder="Kamal Perera"
-                    value={form.fullName}
-                    onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                    required
-                  />
-                </div>
-              </label>
 
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Username</span>
-                <div className="relative">
-                  <AtSign className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2"
-                    placeholder="tech.kamal"
-                    value={form.username}
-                    onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
-                    required
-                  />
+            {modalSuccess ? (
+              <div className="flex max-h-[calc(92vh-88px)] flex-col gap-4 overflow-y-auto p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                  <Check className="h-6 w-6" />
                 </div>
-                <p className="text-xs text-slate-400 mt-1">Staff will use this to log in</p>
-                <div className="text-xs mt-1 min-h-5">
-                  {usernameStatus.checking && (
-                    <span className="text-slate-400 inline-flex items-center gap-1">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Checking...
-                    </span>
-                  )}
-                  {!usernameStatus.checking && usernameStatus.available === true && (
-                    <span className="text-green-600">Available ✓</span>
-                  )}
-                  {!usernameStatus.checking && usernameStatus.available === false && (
-                    <span className="text-red-600">{usernameStatus.message}</span>
-                  )}
+                <p className="font-semibold text-blue-700">Technician account created!</p>
+                <div className="rounded-lg bg-slate-900 p-3 text-sm text-slate-100">
+                  <p>Username: {createdCredentials.username}</p>
+                  <p>Password: {createdCredentials.password}</p>
                 </div>
-              </label>
-
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Department</span>
-                <select
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2"
-                  value={form.department}
-                  onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2"
+                  onClick={() => copyText(`Username: ${createdCredentials.username}\nPassword: ${createdCredentials.password}`)}
                 >
-                  {departments.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Phone Number</span>
-                <div className="relative">
-                  <Phone className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2"
-                    placeholder="+94 77 123 4567"
-                    value={form.phoneNumber}
-                    onChange={(e) => setForm((f) => ({ ...f, phoneNumber: e.target.value }))}
-                  />
-                </div>
-              </label>
-
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Staff ID (optional)</span>
-                <div className="relative">
-                  <Hash className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2"
-                    placeholder="Auto-generated if empty"
-                    value={form.staffId}
-                    onChange={(e) => setForm((f) => ({ ...f, staffId: e.target.value }))}
-                  />
-                </div>
-              </label>
-
-              <label className="block">
-                <span className="text-sm text-slate-600 mb-1 block">Initial Password</span>
-                <div className="relative">
-                  <Key className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    className="w-full border border-slate-200 rounded-lg pl-9 pr-20 py-2"
-                    value={form.initialPassword}
-                    onChange={(e) => setForm((f) => ({ ...f, initialPassword: e.target.value }))}
-                    required
-                  />
+                  <Copy className="h-4 w-4" />
+                  Copy credentials
+                </button>
+                <div className="flex gap-2">
                   <button
                     type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-2 py-1 rounded bg-slate-100"
-                    onClick={() => setForm((f) => ({ ...f, initialPassword: makeSecurePassword() }))}
+                    className="flex-1 rounded-lg border border-slate-300 py-2"
+                    onClick={resetForm}
                   >
-                    Generate
+                    Add another
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 rounded-lg bg-emerald-500 py-2 text-white hover:bg-emerald-600"
+                    onClick={() => {
+                      closeModal();
+                      loadTechnicians();
+                    }}
+                  >
+                    Done
                   </button>
                 </div>
-                <div className="mt-1 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">Staff must change this on first login</p>
-                  {form.initialPassword && (
-                    <button
-                      type="button"
-                      className="text-slate-500 hover:text-slate-700"
-                      onClick={() => copyText(form.initialPassword)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </label>
-            </div>
+              </div>
+            ) : (
+              <form onSubmit={onCreate} className="flex max-h-[calc(92vh-88px)] flex-col">
+                <div className="flex-1 space-y-5 overflow-y-auto p-6">
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Full Name</span>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3"
+                        placeholder="Kamal Perera"
+                        value={form.fullName}
+                        onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </label>
 
-            <div className="p-6 border-t border-slate-200 flex items-center gap-2">
-              <button type="button" className="flex-1 border border-slate-300 rounded-lg py-2" onClick={closeModal}>
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={creating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 py-2 text-white hover:bg-green-700 disabled:opacity-70"
-              >
-                {creating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  'Create Technician'
-                )}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Username</span>
+                    <div className="relative">
+                      <AtSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3"
+                        placeholder="tech.kamal"
+                        value={form.username}
+                        onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-slate-400">Staff will use this to log in</p>
+                    <div className="mt-1 min-h-5 text-xs">
+                      {usernameStatus.checking && (
+                        <span className="inline-flex items-center gap-1 text-slate-400">
+                          <Loader2 className="h-3 w-3 animate-spin" /> Checking...
+                        </span>
+                      )}
+                      {!usernameStatus.checking && usernameStatus.available === true && (
+                        <span className="text-emerald-600">Available</span>
+                      )}
+                      {!usernameStatus.checking && usernameStatus.available === false && (
+                        <span className="text-red-600">{usernameStatus.message}</span>
+                      )}
+                    </div>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Department</span>
+                    <select
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2"
+                      value={form.department}
+                      onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
+                    >
+                      {departments.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Phone Number</span>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3"
+                        placeholder="+94 77 123 4567"
+                        value={form.phoneNumber}
+                        onChange={(e) => setForm((f) => ({ ...f, phoneNumber: e.target.value }))}
+                      />
+                    </div>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Staff ID (optional)</span>
+                    <div className="relative">
+                      <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3"
+                        placeholder="Auto-generated if empty"
+                        value={form.staffId}
+                        onChange={(e) => setForm((f) => ({ ...f, staffId: e.target.value }))}
+                      />
+                    </div>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm text-slate-600">Initial Password</span>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-20"
+                        value={form.initialPassword}
+                        onChange={(e) => setForm((f) => ({ ...f, initialPassword: e.target.value }))}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded bg-slate-100 px-2 py-1 text-xs"
+                        onClick={() => setForm((f) => ({ ...f, initialPassword: makeSecurePassword() }))}
+                      >
+                        Generate
+                      </button>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-xs text-slate-400">Staff must change this on first login</p>
+                      {form.initialPassword && (
+                        <button
+                          type="button"
+                          className="text-slate-500 hover:text-slate-700"
+                          onClick={() => copyText(form.initialPassword)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2 border-t border-slate-200 p-6">
+                  <button type="button" className="flex-1 rounded-lg border border-slate-300 py-2" onClick={closeModal}>
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-500 py-2 text-white hover:bg-emerald-600 disabled:opacity-70"
+                  >
+                    {creating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      'Create Technician'
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default TechnicianManager;
+
+
+

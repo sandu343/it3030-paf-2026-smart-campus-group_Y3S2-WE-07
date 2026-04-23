@@ -67,7 +67,7 @@ export const getUnreadCount = async () => {
     });
 
     return Number(response.data || 0);
-  } catch (error) {
+  } catch {
     return 0;
   }
 };
