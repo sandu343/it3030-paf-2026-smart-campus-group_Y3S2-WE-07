@@ -1,7 +1,0 @@
-# Ticket Attachments - Do not commit uploaded files
-/src/main/resources/uploads/*
-!src/main/resources/uploads/.gitkeep
-
-# Temporary files
-*.tmp
-*.temp
