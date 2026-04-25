@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { AlertTriangle, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
-export const SLABadge = ({ slaDeadline, escalationLevel, size = 'md', showTime = true }) => {
+export const SLABadge = ({ slaDeadline, escalationLevel, isOverdue, size = 'md', showTime = true }) => {
   const [timeRemaining, setTimeRemaining] = useState('')
 
   useEffect(() => {

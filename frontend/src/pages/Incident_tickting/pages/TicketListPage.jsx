@@ -63,11 +63,11 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
       {error && <ErrorAlert message={error} />}
 
       {/* Content Container */}
-      <div className="rounded-[28px] border border-blue-100 bg-[#F8FAFC] p-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)] md:p-8">
+      <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-[#1E3A8A]">
+            <h2 className="text-2xl font-bold text-green-900">
               {isAdmin ? 'All Tickets' : isTechnician ? 'Assigned Tickets' : 'Your Tickets'}
             </h2>
             <p className="mt-1 text-sm text-slate-600">
@@ -77,7 +77,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
           {!isAdmin && (
             <button
               onClick={onCreateNew}
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#10B981] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#059669]"
+              className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-green-700"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New Ticket</span>
@@ -86,12 +86,12 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
         </div>
 
         {/* Filter and View Mode Controls */}
-        <div className="mb-8 space-y-4 border-b border-blue-100 pb-6">
+        <div className="mb-8 space-y-4 border-b border-green-100 pb-6">
           {/* Top Bar: Count, Filters Toggle, View Toggle */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             {/* Result Count Badge */}
-            <div className="inline-flex items-center gap-2 self-start sm:self-auto rounded-lg bg-blue-100 px-4 py-2 text-sm font-semibold text-[#1E3A8A]">
-              <span className="inline-block h-3 w-3 rounded-full bg-[#3B82F6]"></span>
+            <div className="inline-flex items-center gap-2 self-start sm:self-auto rounded-lg bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">
+              <span className="inline-block h-3 w-3 rounded-full bg-green-500"></span>
               {filteredTickets.length} of {tickets.length}
             </div>
 
@@ -100,8 +100,8 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
               onClick={() => setShowFilters(!showFilters)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-all duration-200 ${
                 showFilters
-                  ? 'bg-[#1E3A8A] text-white shadow-md'
-                  : 'bg-white text-slate-700 hover:bg-blue-50'
+                  ? 'bg-green-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               <svg
@@ -126,7 +126,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition ${
                   viewMode === 'grid'
-                    ? 'bg-[#1E3A8A] text-white'
+                    ? 'bg-green-600 text-white'
                     : 'bg-transparent text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -136,7 +136,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                 onClick={() => setViewMode('table')}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition ${
                   viewMode === 'table'
-                    ? 'bg-[#1E3A8A] text-white'
+                    ? 'bg-green-600 text-white'
                     : 'bg-transparent text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -147,7 +147,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
 
           {/* Filter Controls - Expandable */}
           {showFilters && (
-            <div className="border-t border-blue-100 pt-4">
+            <div className="border-t border-green-100 pt-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Status Filter */}
                 <div>
@@ -157,7 +157,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-[#3B82F6] focus:outline-none"
+                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                   >
                     <option value="ALL">All Statuses</option>
                     <option value="OPEN">Open</option>
@@ -169,7 +169,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                   {filterStatus !== 'ALL' && (
                     <button
                       onClick={() => setFilterStatus('ALL')}
-                      className="mt-2 text-xs font-semibold text-[#1E3A8A] hover:text-[#1E40AF]"
+                      className="mt-2 text-xs font-semibold text-green-700 hover:text-green-800"
                     >
                       Clear status filter
                     </button>
@@ -184,7 +184,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                   <select
                     value={filterPriority}
                     onChange={(e) => setFilterPriority(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-[#3B82F6] focus:outline-none"
+                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                   >
                     <option value="ALL">All Priorities</option>
                     <option value="LOW">Low</option>
@@ -195,7 +195,7 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
                   {filterPriority !== 'ALL' && (
                     <button
                       onClick={() => setFilterPriority('ALL')}
-                      className="mt-2 text-xs font-semibold text-[#1E3A8A] hover:text-[#1E40AF]"
+                      className="mt-2 text-xs font-semibold text-green-700 hover:text-green-800"
                     >
                       Clear priority filter
                     </button>
@@ -207,11 +207,11 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
               {(filterStatus !== 'ALL' || filterPriority !== 'ALL') && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {filterStatus !== 'ALL' && (
-                    <div className="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-3 py-1.5 text-xs font-semibold text-[#1E3A8A]">
+                    <div className="inline-flex items-center gap-2 rounded-lg bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800">
                       Status: {filterStatus.replace(/_/g, ' ')}
                       <button
                         onClick={() => setFilterStatus('ALL')}
-                        className="ml-1 font-bold hover:text-[#1E40AF]"
+                        className="ml-1 font-bold hover:text-green-900"
                       >
                         ✕
                       </button>
@@ -253,14 +253,14 @@ export const TicketListPage = ({ isAdmin, isTechnician, onCreateNew, onViewTicke
             />
           )
         ) : (
-          <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-white py-12 text-center">
+          <div className="rounded-2xl border-2 border-dashed border-green-200 bg-green-50/50 py-12 text-center">
             <p className="text-lg text-gray-600 mb-4">
               {isAdmin ? 'No tickets found' : isTechnician ? 'No tickets assigned to you yet' : 'You have not created any tickets yet'}
             </p>
             {!isAdmin && (
               <button
                 onClick={onCreateNew}
-                className="inline-flex items-center gap-2 rounded-2xl bg-[#10B981] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-[#059669]"
+                className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-green-700"
               >
                 <Plus className="h-4 w-4" />
                 Create Your First Ticket

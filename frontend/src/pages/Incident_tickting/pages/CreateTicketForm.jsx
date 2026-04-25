@@ -60,7 +60,7 @@ export const CreateTicketForm = ({ onSuccess }) => {
         setTouched(prev => ({ ...prev, contactNumber: true }))
       }
     }
-  }, [user, formData.preferredContact, formData.contactNumber])
+  }, [user])
 
   // Load resources on component mount
   useEffect(() => {

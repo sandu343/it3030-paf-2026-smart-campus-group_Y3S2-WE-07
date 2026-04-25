@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1/tickets'
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/v1/tickets'
 
 const getToken = () => {
   // Match authService storage: sessionStorage with key 'smartcampus_session_token'

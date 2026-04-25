@@ -8,6 +8,8 @@ import com.smartcampus.backend.repository.UserRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class LoginService {
     
@@ -26,8 +28,15 @@ public class LoginService {
     public AuthenticationResponse login(LoginRequest request) {
         try {
             // Find user by email
-            User user = userRepository.findByEmailIgnoreCase(request.getEmail().trim())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+            List<User> candidates = userRepository.findAllByEmailIgnoreCaseOrderByCreatedAtDesc(request.getEmail().trim());
+            User user = candidates.stream()
+                .filter((candidate) -> candidate.getPasswordHash() != null && !candidate.getPasswordHash().isBlank())
+                .findFirst()
+                .orElseGet(() -> candidates.stream().findFirst().orElse(null));
+
+            if (user == null) {
+                throw new InvalidCredentialsException("Invalid email or password");
+            }
 
             // Verify password
             if (!passwordService.verifyPassword(request.getPassword(), user.getPasswordHash())) {

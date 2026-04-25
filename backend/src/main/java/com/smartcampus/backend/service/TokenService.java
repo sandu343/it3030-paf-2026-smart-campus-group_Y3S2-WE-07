@@ -37,13 +37,24 @@ public class TokenService {
     }
     
     public String generateToken(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Cannot generate token: user is null");
+        }
+        if (user.getId() == null || user.getId().isBlank()) {
+            throw new IllegalArgumentException("Cannot generate token: user id is missing");
+        }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Cannot generate token: user email is missing");
+        }
+
+        String roleClaim = user.getRole() != null ? user.getRole().name() : "USER";
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
         
         return Jwts.builder()
             .setSubject(user.getId())
             .claim("email", user.getEmail())
-            .claim("role", user.getRole().name())
+            .claim("role", roleClaim)
             .setIssuedAt(now)
             .setExpiration(expiryDate)
             .signWith(secretKey, SignatureAlgorithm.HS512)

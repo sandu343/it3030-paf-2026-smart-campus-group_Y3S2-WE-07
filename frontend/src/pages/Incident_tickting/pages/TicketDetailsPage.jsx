@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, AlertCircle, Check } from 'lucide-react'
 import ticketApiService from '../services/ticketApiService'
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge'
@@ -21,9 +21,9 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
 
   useEffect(() => {
     fetchTicket()
-  }, [fetchTicket])
+  }, [ticketId])
 
-  const fetchTicket = useCallback(async () => {
+  const fetchTicket = async () => {
     setIsLoading(true)
     setError(null)
 
@@ -36,7 +36,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
     } finally {
       setIsLoading(false)
     }
-  }, [ticketId])
+  }
 
   const getValidTransitions = (status, role) => {
     const adminTransitions = {
@@ -112,7 +112,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
           Back to Tickets
         </button>
 
-        <div className="rounded-3xl border border-blue-100 bg-white p-12 shadow-sm text-center">
+        <div className="rounded-3xl border border-green-100 bg-white p-12 shadow-sm text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <p className="text-gray-700 text-lg">{error || 'Ticket not found'}</p>
         </div>
@@ -142,10 +142,10 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
         {/* Left Column - Ticket Details */}
         <div className="space-y-6 lg:col-span-2">
           {/* Ticket Header Card */}
-          <div className="rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
+          <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
             <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-blue-900">{ticket.title}</h1>
+                <h1 className="text-2xl font-bold text-green-900">{ticket.title}</h1>
                 <p className="mt-2 text-sm text-slate-600">Ticket ID: {ticket.id}</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -154,14 +154,14 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
               </div>
             </div>
 
-            <div className="border-t border-blue-100 pt-6">
+            <div className="border-t border-green-100 pt-6">
               <p className="whitespace-pre-wrap text-slate-700">{ticket.description}</p>
             </div>
           </div>
 
           {/* Details Card */}
-          <div className="rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
-            <h2 className="mb-6 text-lg font-bold text-blue-900">Details</h2>
+          <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
+            <h2 className="mb-6 text-lg font-bold text-green-900">Details</h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <p className="text-sm font-semibold text-slate-600">Category</p>
@@ -214,15 +214,15 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
 
           {/* Attachments */}
           {ticket.attachmentUrls && ticket.attachmentUrls.length > 0 && (
-            <div className="rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
-              <h3 className="mb-6 text-lg font-bold text-blue-900">Attachments</h3>
+            <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
+              <h3 className="mb-6 text-lg font-bold text-green-900">Attachments</h3>
               <AttachmentPreviewList attachmentUrls={ticket.attachmentUrls} />
             </div>
           )}
 
           {/* Comments */}
-          <div className="rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
-            <h2 className="mb-6 text-lg font-bold text-blue-900">Comments</h2>
+          <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
+            <h2 className="mb-6 text-lg font-bold text-green-900">Comments</h2>
             <CommentThread
               ticketId={ticketId}
               comments={ticket.comments || []}
@@ -238,8 +238,8 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
           <div className="space-y-6">
             {/* SLA Status Card */}
             {ticket.slaDeadline && (
-              <div className="rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
-                <h3 className="mb-6 text-lg font-bold text-blue-900">SLA Status</h3>
+              <div className="rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
+                <h3 className="mb-6 text-lg font-bold text-green-900">SLA Status</h3>
                 <div className="space-y-6">
                   <div>
                     <p className="mb-3 text-sm font-semibold text-slate-600">Escalation Level</p>
@@ -252,7 +252,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                     />
                   </div>
 
-                  <div className="border-t border-blue-100 pt-6">
+                  <div className="border-t border-green-100 pt-6">
                     <p className="text-sm font-semibold text-slate-600">SLA Deadline</p>
                     <p className="mt-1 text-sm font-medium text-slate-900">
                       {formatDateTime(ticket.slaDeadline)}
@@ -268,7 +268,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                   )}
 
                   {ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? (
-                    <div className="border-t border-blue-100 pt-6">
+                    <div className="border-t border-green-100 pt-6">
                       <p className="text-sm font-semibold text-slate-600">Resolved Within SLA</p>
                       <p className={`mt-1 text-sm font-bold ${ticket.resolvedWithinSla ? 'text-green-700' : 'text-red-700'}`}>
                         {ticket.resolvedWithinSla ? '✓ Yes' : '✗ No'}
@@ -280,8 +280,8 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
             )}
 
             {/* Admin Actions Card */}
-            <div className="sticky top-6 rounded-3xl border border-blue-100 bg-white p-8 shadow-sm">
-              <h3 className="mb-6 text-lg font-bold text-blue-900">{isAdmin ? 'Admin' : 'Technician'} Actions</h3>
+            <div className="sticky top-6 rounded-3xl border border-green-100 bg-white p-8 shadow-sm">
+              <h3 className="mb-6 text-lg font-bold text-green-900">{isAdmin ? 'Admin' : 'Technician'} Actions</h3>
 
               {showStatusForm ? (
                 <div className="space-y-4">
@@ -293,7 +293,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value)}
                       disabled={isUpdatingStatus}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
                     >
                       <option value={ticket.status}>{ticket.status}</option>
                       {validTransitions.map((status) => (
@@ -314,7 +314,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                         onChange={(e) => setNotes(e.target.value)}
                         disabled={isUpdatingStatus}
                         rows="3"
-                        className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
                       />
                     </div>
                   )}
@@ -329,7 +329,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                         onChange={(e) => setNotes(e.target.value)}
                         disabled={isUpdatingStatus}
                         rows="3"
-                        className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        className="w-full rounded-2xl border border-slate-300 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
                       />
                     </div>
                   )}
@@ -338,7 +338,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                     <button
                       onClick={handleStatusChange}
                       disabled={isUpdatingStatus || newStatus === ticket.status}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check className="h-4 w-4" />
                       Update
@@ -361,7 +361,7 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
                   <button
                     onClick={() => setShowStatusForm(true)}
                     disabled={validTransitions.length === 0}
-                    className="w-full rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full rounded-2xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Change Status
                   </button>
@@ -381,4 +381,3 @@ export const TicketDetailsPage = ({ ticketId, isAdmin, isTechnician, currentUser
 }
 
 export default TicketDetailsPage
-

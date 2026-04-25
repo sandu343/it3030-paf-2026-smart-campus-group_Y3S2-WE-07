@@ -53,7 +53,7 @@ export const IncidentTicketingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1200px_680px_at_10%_-10%,rgba(59,130,246,0.10)_0%,#F8FAFC_42%,#F5F7FA_100%)] text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(1200px_700px_at_12%_-12%,#dcfce7_0%,#f8fafc_45%,#eefbf3_100%)] text-slate-900">
       <PortalHeader
         user={user}
         onLogout={handleLogout}
@@ -74,7 +74,27 @@ export const IncidentTicketingPage = () => {
       />
 
       {/* Main Content */}
-      <main className="mx-auto max-w-[1320px] px-4 py-5 sm:px-6">
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-28">
+        <section className="mb-6 rounded-3xl border border-emerald-100 bg-white/80 p-5 shadow-sm backdrop-blur-sm sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-xl font-extrabold tracking-tight text-emerald-900 sm:text-2xl">Incident Ticketing</h1>
+              <p className="mt-1 text-sm text-slate-600">
+                Raise issues, track updates, and manage support requests from a single place.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-emerald-800">
+                Role: {isAdmin ? 'Admin' : isTechnician ? 'Technician' : 'User'}
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
+                {currentView === 'list' ? 'Ticket List' : currentView === 'create' ? 'Create Ticket' : 'Ticket Details'}
+              </span>
+            </div>
+          </div>
+        </section>
+
         {currentView === 'list' && (
           <TicketListPage
             isAdmin={isAdmin}

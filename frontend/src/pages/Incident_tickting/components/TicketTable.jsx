@@ -4,37 +4,37 @@ import { formatDate } from '../utils/formatUtils'
 
 export const TicketTable = ({ tickets = [], onTicketClick }) => {
   return (
-    <div className="overflow-x-auto rounded-lg border border-blue-100 bg-white">
+    <div className="overflow-x-auto border border-gray-200 rounded-lg">
       <table className="w-full">
-        <thead className="border-b border-blue-100 bg-blue-50/60">
+        <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Reported By Email
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Title
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Category
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Priority
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#1E3A8A]">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Created
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-blue-100">
+        <tbody className="divide-y divide-gray-200">
           {tickets && tickets.length > 0 ? (
             tickets.map((ticket) => (
               <tr
                 key={ticket.id}
                 onClick={() => onTicketClick(ticket.id)}
-                className="cursor-pointer transition hover:bg-blue-50/60"
+                className="hover:bg-gray-50 transition cursor-pointer"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {ticket.reportedByEmail || ticket.reportedByName || 'Unknown'}

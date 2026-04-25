@@ -6,6 +6,8 @@ import com.smartcampus.backend.dto.AuthenticationResponse;
 import com.smartcampus.backend.model.Role;
 import com.smartcampus.backend.model.User;
 import com.smartcampus.backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class OAuth2Service {
+    private static final Logger log = LoggerFactory.getLogger(OAuth2Service.class);
     
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
@@ -137,19 +140,33 @@ public class OAuth2Service {
     }
     
     public User findOrCreateUserFromOAuth(String email, String name) {
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
+        String safeName = name == null || name.trim().isEmpty() ? "Google User" : name.trim();
+
+        if (normalizedEmail.isEmpty()) {
+            throw new RuntimeException("Google account email is missing");
+        }
+
         // Validate campus email
-        emailValidationService.validateCampusEmail(email);
+        emailValidationService.validateCampusEmail(normalizedEmail);
         
-        Optional<User> existingUser = userRepository.findByEmail(email);
+        List<User> existingUsers = userRepository.findAllByEmailIgnoreCaseOrderByCreatedAtDesc(normalizedEmail);
         
-        if (existingUser.isPresent()) {
-            return existingUser.get();
+        if (!existingUsers.isEmpty()) {
+            User user = existingUsers.get(0);
+            if (user.getRole() == null) {
+                user.setRole(Role.USER);
+                user.setUpdatedAt(LocalDateTime.now());
+                user = userRepository.save(user);
+                log.warn("OAuth user had null role. Defaulted to USER for email={}", normalizedEmail);
+            }
+            return user;
         }
         
         // Create new user
         User newUser = new User();
-        newUser.setName(name);
-        newUser.setEmail(email);
+        newUser.setName(safeName);
+        newUser.setEmail(normalizedEmail);
         newUser.setPasswordHash(""); // No password for OAuth users
         newUser.setRole(Role.USER);
         newUser.setStaff(false);

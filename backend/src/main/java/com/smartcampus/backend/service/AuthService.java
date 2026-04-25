@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -28,7 +29,11 @@ public class AuthService {
     }
 
     public AuthResponse staffLogin(StaffLoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
+        String normalizedUsername = request.getUsername() == null
+            ? ""
+            : request.getUsername().trim().toLowerCase();
+
+        User user = userRepository.findByUsernameIgnoreCase(normalizedUsername)
             .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
         if (!user.isStaff()) {
@@ -68,7 +73,8 @@ public class AuthService {
         String newPassword = request.getNewPassword();
         validatePasswordStrength(newPassword);
 
-        User user = userRepository.findByEmailIgnoreCase(email)
+        List<User> candidates = userRepository.findAllByEmailIgnoreCaseOrderByCreatedAtDesc(email);
+        User user = candidates.stream().findFirst()
             .orElseThrow(() -> new ValidationException("No user found for this email"));
 
         user.setPasswordHash(passwordService.hashPassword(newPassword));

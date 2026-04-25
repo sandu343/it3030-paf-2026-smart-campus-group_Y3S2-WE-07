@@ -23,6 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(TokenService tokenService) {
         this.tokenService = tokenService;
     }
+
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/oauth2/")
+                || path.startsWith("/login/oauth2/")
+                || path.equals("/error")
+                || path.startsWith("/api/auth/");
+    }
     
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 

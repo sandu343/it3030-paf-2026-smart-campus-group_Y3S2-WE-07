@@ -105,7 +105,7 @@ export const TICKET_CATEGORIES = [
   'Other'
 ]
 
-export const validateField = (fieldName, value) => {
+export const validateField = (fieldName, value, formData, selectedResource) => {
   const rules = VALIDATION_RULES.TICKET
   const fieldRules = rules[fieldName]
   
